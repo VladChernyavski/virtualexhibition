@@ -1,12 +1,12 @@
 package by.cniitu.virtualexhibition.entity.exhibition;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import by.cniitu.virtualexhibition.entity.file.File;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "stand_object")
@@ -56,5 +56,8 @@ public class StandObject {
     @ManyToOne
     @JoinColumn(name = "model_id")
     private ObjectModel objectModel;
+
+    @ManyToMany(mappedBy = "standObjects")
+    private List<File> files;
 
 }

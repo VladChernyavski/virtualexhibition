@@ -1,6 +1,5 @@
 package by.cniitu.virtualexhibition.entity.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,12 +11,13 @@ import javax.validation.constraints.Email;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Table(name = "user_table")
 @Data
 @JsonIgnoreProperties({ "password", "enabled", "username", "accountNonExpired",
-        "credentialsNonExpired", "accountNonLocked", "authorities" })
+        "credentialsNonExpired", "accountNonLocked", "authorities", "userActions" })
 public class User implements UserDetails, Serializable {
 
     @Id
@@ -43,6 +43,9 @@ public class User implements UserDetails, Serializable {
     @ManyToOne
     @JoinColumn(name = "role_id")
     private UserRole role;
+
+    @OneToMany(mappedBy = "user")
+    private List<UserAction> userActions;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

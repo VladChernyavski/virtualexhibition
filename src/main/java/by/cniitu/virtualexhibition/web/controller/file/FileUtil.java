@@ -8,11 +8,16 @@ import java.io.FileInputStream;
 
 public class FileUtil {
 
-    // path to directory on server. take from properties
-    private static String path = "/opt/unityobject/";
+//     path to directory on server. take from properties
+    private static String pathToObject = "/opt/unityobject/";
+    private static String pathToFile = "/***/";
 
-    public static void setPath(String path) {
-        FileUtil.path = path;
+    public static void setPathToObject(String path) {
+        FileUtil.pathToObject = path;
+    }
+
+    public static void setPathToFile(String path) {
+        FileUtil.pathToFile = path;
     }
 
     public static String getLittleFileName(String path, int px){
@@ -37,17 +42,31 @@ public class FileUtil {
     public static FileAndInputStreamResource getFileAndInputStreamResource(String fileName) {
         InputStreamResource inputStreamResource = null;
         File file = null;
-        int count = 0;
         while (inputStreamResource == null) {
             try {
                 Thread.sleep(100);
-                file = getFile(fileName);
+                file = getFile(pathToFile + fileName);
                 if (file != null)
                     inputStreamResource = new InputStreamResource(new FileInputStream(file));
             } catch (Exception ex) {
-                // System.out.println(ex.getMessage());
-                count++;
-                // if(count > retryCount)
+                ex.printStackTrace();
+                return null;
+            }
+        }
+        return new FileAndInputStreamResource(file, inputStreamResource);
+    }
+
+    public static FileAndInputStreamResource getFileAndInputStreamResource(String fileName, String os) {
+        InputStreamResource inputStreamResource = null;
+        File file = null;
+        while (inputStreamResource == null) {
+            try {
+                Thread.sleep(100);
+                file = getFile(pathToObject + os + "/" + fileName);
+                if (file != null)
+                    inputStreamResource = new InputStreamResource(new FileInputStream(file));
+            } catch (Exception ex) {
+                ex.printStackTrace();
                 return null;
             }
         }
@@ -57,15 +76,12 @@ public class FileUtil {
     // gets file and retries if it's needed <retryCount> times
     private static File getFile(String fileName){
         File file = null;
-        int count = 0;
         while(file == null){
             try{
                 Thread.sleep(100);
-                file = new File(path + fileName);
+                file = new File(fileName);
             } catch (Exception ex){
                 ex.printStackTrace();
-                count++;
-                // if(count > retryCount)
                 return null;
             }
         }

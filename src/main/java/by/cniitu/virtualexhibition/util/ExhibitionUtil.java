@@ -1,8 +1,9 @@
 package by.cniitu.virtualexhibition.util;
 
-import by.cniitu.virtualexhibition.entity.exhibition.Exhibition;
+import by.cniitu.virtualexhibition.entity.exhibition.ExhibitionObject;
 import by.cniitu.virtualexhibition.entity.exhibition.Stand;
 import by.cniitu.virtualexhibition.entity.exhibition.StandObject;
+import by.cniitu.virtualexhibition.to.ExhibitionObjectTo;
 import by.cniitu.virtualexhibition.to.StandObjectTo;
 import by.cniitu.virtualexhibition.to.StandTo;
 
@@ -12,8 +13,7 @@ import java.util.List;
 
 public class ExhibitionUtil {
 
-    public static List<StandTo> getStandTo(Exhibition exhibition){
-        List<Stand> stands = exhibition.getStands();
+    public static List<StandTo> getStandTo(List<Stand> stands) {
         List<StandTo> standTos = new ArrayList<>();
 
         for (Stand stand : stands) {
@@ -69,6 +69,36 @@ public class ExhibitionUtil {
         }
 
         return standTos;
+    }
+
+    public static List<ExhibitionObjectTo> getExhibitionObjectTos(List<ExhibitionObject> exhibitionObjects) {
+        List<ExhibitionObjectTo> exhibitionObjectTos = new ArrayList<>();
+
+        for (ExhibitionObject object : exhibitionObjects){
+            ExhibitionObjectTo objectTo = new ExhibitionObjectTo();
+            objectTo.setId(object.getId());
+            objectTo.setName(object.getName());
+            objectTo.setCoordinates(new LinkedList<Double>() {{
+                add(object.getCoordinate_x());
+                add(object.getCoordinate_y());
+                add(object.getCoordinate_z());
+            }});
+            objectTo.setRotations(new LinkedList<Double>() {{
+                add(object.getRotation_x());
+                add(object.getRotation_y());
+                add(object.getRotation_z());
+            }});
+            objectTo.setScale(new LinkedList<Double>() {{
+                add(object.getScale_x());
+                add(object.getScale_y());
+                add(object.getScale_z());
+            }});
+
+            objectTo.setObjectModel(object.getObjectModel());
+            exhibitionObjectTos.add(objectTo);
+        }
+
+        return exhibitionObjectTos;
     }
 
 }

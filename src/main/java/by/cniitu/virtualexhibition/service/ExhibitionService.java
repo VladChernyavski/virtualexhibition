@@ -19,7 +19,8 @@ public class ExhibitionService {
         ExhibitionTo exhibitionTo = new ExhibitionTo();
         exhibitionTo.setId(exhibition.getId());
         exhibitionTo.setName(exhibition.getName());
-        exhibitionTo.setStands(ExhibitionUtil.getStandTo(exhibition));
+        exhibitionTo.setStands((ExhibitionUtil.getStandTo(exhibition.getStands())));
+        exhibitionTo.setExhibitionObjects(ExhibitionUtil.getExhibitionObjectTos(exhibition.getExhibitionObjects()));
 
         return exhibitionTo;
     }

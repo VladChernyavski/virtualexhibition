@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface JpaExhibitionRepository extends JpaRepository<Exhibition, Integer> {
 
-    @Query("SELECT e FROM Exhibition e WHERE e.id=?1")
+    @Query("SELECT e FROM Exhibition e WHERE e.id = ?1")
     Exhibition getExhibition(int id);
 
 }

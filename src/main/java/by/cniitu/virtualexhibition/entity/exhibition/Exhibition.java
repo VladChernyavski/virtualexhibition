@@ -1,7 +1,5 @@
 package by.cniitu.virtualexhibition.entity.exhibition;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,5 +21,8 @@ public class Exhibition {
 
     @OneToMany(mappedBy = "exhibition")
     private List<Stand> stands;
+
+    @OneToMany(mappedBy = "exhibition")
+    private List<ExhibitionObject> exhibitionObjects;
 
 }

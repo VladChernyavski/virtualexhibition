@@ -1,6 +1,8 @@
 package by.cniitu.virtualexhibition.util;
 
 import by.cniitu.virtualexhibition.entity.user.User;
+import by.cniitu.virtualexhibition.entity.user.UserAction;
+import by.cniitu.virtualexhibition.to.UserActionTo;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
@@ -29,6 +31,10 @@ public class UserUtil {
         user.setPassword(data[4]);
 
         return user;
+    }
+
+    public static UserActionTo toUserActionTo(UserAction action){
+        return new UserActionTo(action.getId(), action.getFile().getFileType().getName(), action.getActionType().getName());
     }
 
 }

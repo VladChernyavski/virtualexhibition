@@ -1,7 +1,6 @@
 package by.cniitu.virtualexhibition.entity.exhibition;
 
-import by.cniitu.virtualexhibition.entity.user.User;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import by.cniitu.virtualexhibition.entity.file.File;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,11 +8,10 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "stand")
-@JsonIgnoreProperties({ "exhibition" })
+@Table(name = "exhibition_object")
 @Getter
 @Setter
-public class Stand {
+public class ExhibitionObject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,18 +48,13 @@ public class Stand {
     private Double scale_z;
 
     @ManyToOne
-    @JoinColumn(name = "model_id")
-    private StandModel standModel;
-
-    @ManyToOne
     @JoinColumn(name = "exhibition_id")
     private Exhibition exhibition;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private User user;
+    @JoinColumn(name = "model_id")
+    private ObjectModel objectModel;
 
-    @OneToMany(mappedBy = "stand")
-    private List<StandObject> standObjects;
-
+    @ManyToMany(mappedBy = "exhibitionObjects")
+    private List<File> files;
 }

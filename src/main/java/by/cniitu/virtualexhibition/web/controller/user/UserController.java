@@ -55,15 +55,16 @@ public class UserController {
     }
 
     @PostMapping("/auth")
-    public ResponseEntity<Object> auth(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest request) {
         User user = getUserByClaims(request.getToken(), "auth");
         if (Objects.isNull(user)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+        Integer id = user.getId();
         String token = jwtProvider.generateToken(user.getEmail(), user.getPassword());
         String nickName = user.getNickName();
         String role = user.getRole().getName();
-        return ResponseEntity.ok(new AuthResponse(token, nickName, role)); //добавить в ответ роль и никнейм
+        return ResponseEntity.ok(new AuthResponse(id, token, nickName, role));
     }
 
     @PostMapping("/changepassword")
