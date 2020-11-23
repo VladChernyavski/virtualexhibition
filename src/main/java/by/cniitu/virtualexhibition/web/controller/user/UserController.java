@@ -45,15 +45,20 @@ public class UserController {
         System.out.println("register 2");
         MailThreadExecutorUtil.execute(() -> userService.confirmUserEmail(noConfirmUser));
         System.out.println("register 3");
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.ok("{\"message\": \"Ok. Check your email please\"}");
     }
 
     @CrossOrigin("*")
     @GetMapping("/activate/{code}")
-    public String activate(@PathVariable String code) {
+    public ResponseEntity<String> activate(@PathVariable String code) {
+        // TODO cancel it
+        if (code.equals("1111"))
+            return ResponseEntity.ok("{\"message\": \"Your email is confirmed\"}");
         User newUser = UserUtil.getUserByParseCode(code);
+        if (newUser == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Your link is invalid\"}");
         userService.create(newUser);
-        return "Your email is confirmed"; // TODO redirect to main page
+        return ResponseEntity.ok("{\"message\": \"Your email is confirmed\"}");
     }
 
     //TODO DELETE

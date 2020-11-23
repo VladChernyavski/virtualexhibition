@@ -25,19 +25,24 @@ public class UserUtil {
         return user;
     }
 
-    //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    /**
+     * @param code - encoded user
+     * @return decoded user or null in case of the error
+     */
     public static User getUserByParseCode(String code) {
         byte[] decoded = Base64.getDecoder().decode(code);
         String decodedString = new String(decoded);
-
         String[] data = decodedString.split("~");
+        // [UMKA] 23.11.2020 if the code is wrong and it is not a user
+        if(data.length < 2){
+            return null;
+        }
         User user = new User();
         user.setFirstName(data[0]);
         user.setLastName(data[1]);
         user.setNickName(data[2]);
         user.setEmail(data[3]);
         user.setPassword(data[4]);
-
         return user;
     }
 
