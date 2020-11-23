@@ -27,19 +27,28 @@ public class UserController {
     @Autowired
     private JwtProvider jwtProvider;
 
+    @CrossOrigin("*")
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody RegisterRequest request) {
+        System.out.println("request.getToken() = " + request.getToken());
         User noConfirmUser = getUserByClaims(request.getToken(), "register");
+        System.out.println("noConfirmUser = " + noConfirmUser);
         if(Objects.isNull(noConfirmUser)){
+            System.out.println("BAD_REQUEST");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
+        System.out.println("register 1");
         if(userService.isEmailExist(noConfirmUser.getEmail())){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User with such email exists");
+            System.out.println("BAD_REQUEST User with such email exists");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"User with such email exists\"}");
         }
+        System.out.println("register 2");
         MailThreadExecutorUtil.execute(() -> userService.confirmUserEmail(noConfirmUser));
+        System.out.println("register 3");
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
+    @CrossOrigin("*")
     @GetMapping("/activate/{code}")
     public String activate(@PathVariable String code) {
         User newUser = UserUtil.getUserByParseCode(code);
@@ -47,6 +56,7 @@ public class UserController {
         return "Your email is confirmed"; // TODO redirect to main page
     }
 
+    //TODO DELETE
     @PostMapping("/auth_old")
     public AuthResponse auth(@RequestBody User userRequest) {
         User user = userService.findByLoginAndPassword(userRequest.getEmail(), userRequest.getPassword()); //check user for null
@@ -54,19 +64,26 @@ public class UserController {
         return new AuthResponse(token);
     }
 
+    @CrossOrigin("*")
     @PostMapping("/auth")
     public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest request) {
+        System.out.println("[UMKA] request.getToken() = " + request.getToken());
         User user = getUserByClaims(request.getToken(), "auth");
+        System.out.println("[UMKA] user = " + user);
         if (Objects.isNull(user)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         Integer id = user.getId();
+        System.out.println("[UMKA] start response token generation " + user);
         String token = jwtProvider.generateToken(user.getEmail(), user.getPassword());
+        System.out.println("[UMKA] response token generated " + token);
         String nickName = user.getNickName();
         String role = user.getRole().getName();
+        System.out.println("[UMKA] login successful " + user);
         return ResponseEntity.ok(new AuthResponse(id, token, nickName, role));
     }
 
+    @CrossOrigin("*")
     @PostMapping("/changepassword")
     public ResponseEntity<Object> changePassword(@RequestBody AuthRequest request) {
         User user = getUserByClaims(request.getToken(), "changepassword");
@@ -119,7 +136,7 @@ public class UserController {
 
 
 
-    //DELETE
+    //TODO DELETE
     @GetMapping("/authtoken")
     public String auth(@RequestParam("l") String login,
                        @RequestParam("p") String password,

@@ -21,4 +21,12 @@ public class FileService {
         return fileRepository.getFileById(id);
     }
 
+    public boolean isFileExists(int fileId, int userId){
+        return fileRepository.isFileExists(fileId, userId);
+    }
+
+    public void deleteFile(int fileId){
+        fileRepository.delete(fileId);
+    }
+
 }

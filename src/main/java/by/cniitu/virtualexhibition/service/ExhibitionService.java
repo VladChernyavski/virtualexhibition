@@ -7,6 +7,8 @@ import by.cniitu.virtualexhibition.util.ExhibitionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class ExhibitionService {
 
@@ -15,6 +17,9 @@ public class ExhibitionService {
 
     public ExhibitionTo getExhibitionJson(int id) {
         Exhibition exhibition = exhibitionRepository.getExhibition(id);
+        if(Objects.isNull(exhibition)){
+            return null;
+        }
 
         ExhibitionTo exhibitionTo = new ExhibitionTo();
         exhibitionTo.setId(exhibition.getId());

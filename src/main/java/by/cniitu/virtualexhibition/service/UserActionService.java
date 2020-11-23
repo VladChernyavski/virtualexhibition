@@ -20,8 +20,16 @@ public class UserActionService {
         userActionRepository.saveUserActionByIds(userId, fileId, actionTypeId);
     }
 
-    public List<UserActionTo> getActionsByUserId(int id){
-        return userActionRepository.getAllByUserId(id).stream()
+    public List<UserActionTo> getActionsByUserId(int exhibitionId, int userId){
+        List<UserAction> actions = userActionRepository.getUserActionByExhibAndUserId(exhibitionId, userId);
+        return actions.stream()
+                .map(UserUtil::toUserActionTo)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserActionTo> getActionsByStandId(int standId){
+        List<UserAction> actions = userActionRepository.getUserActionByStandId(standId);
+        return actions.stream()
                 .map(UserUtil::toUserActionTo)
                 .collect(Collectors.toList());
     }

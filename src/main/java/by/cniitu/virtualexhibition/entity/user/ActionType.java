@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "action_type")
@@ -17,5 +18,8 @@ public class ActionType {
 
     @Column(name = "name")
     private String name;
+
+    @OneToMany(mappedBy = "actionType")
+    private List<UserAction> actions;
 
 }

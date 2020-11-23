@@ -3,14 +3,17 @@ package by.cniitu.virtualexhibition.repository.user;
 import by.cniitu.virtualexhibition.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@Transactional(readOnly = true)
 public class DataJpaUserRepository implements UserRepository {
 
     @Autowired
     private JpaUserRepository userRepository;
 
     @Override
+    @Transactional
     public User save(User user) {
         return userRepository.save(user);
     }

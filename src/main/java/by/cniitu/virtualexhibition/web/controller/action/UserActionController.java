@@ -10,24 +10,35 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping(value = "/useraction")
 public class UserActionController {
 
     @Autowired
     private UserActionService userActionService;
 
-    @PostMapping(value = "/useraction")
+    @CrossOrigin("*")
+    @PostMapping
     public ResponseEntity<String> saveUserAction(@RequestBody ActionRequest actionRequest){
         int userId = actionRequest.getUserId();
         int fileId = actionRequest.getFileId();
         String actionType = actionRequest.getActionType();
-//        !!!!
+//        !!!! save action to DB
         userActionService.save(userId,fileId, ActionTypeUtil.actionType.get(actionType));
         return ResponseEntity.ok("Action saved");
     }
 
-    @GetMapping(value = "/user/{id}/actions")
-    public List<UserActionTo> getUserActions(@PathVariable int id){
-        return userActionService.getActionsByUserId(id);
+    //TODO test controller
+    @CrossOrigin("*")
+    @GetMapping(value = "/actions")
+    public List<UserActionTo> getUserActionsByExhibitionAndUserId(@RequestParam int exhibitionId, int userId){
+        return userActionService.getActionsByUserId(exhibitionId, userId);
+    }
+
+    //TODO test controller
+    @CrossOrigin("*")
+    @GetMapping(value = "/stand/{standId}/actions")
+    public List<UserActionTo> getUserActionsByStandId(@PathVariable int standId){
+        return userActionService.getActionsByStandId(standId);
     }
 
 }
