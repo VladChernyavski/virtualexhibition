@@ -13,10 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -74,7 +71,7 @@ public class SocketServerService extends WebSocketServer {
      * Called when client sends message
      */
     public void onMessage(WebSocket webSocket, String s) {
-        System.out.println(String.format("Socket %s onMessage %s", webSocket, s));
+        System.out.printf("Socket %s onMessage %s%n", webSocket, s);
 
         //user coordinate, exhibition id, user id ("move~json user")
         if (s.startsWith("move~")) {
@@ -82,33 +79,41 @@ public class SocketServerService extends WebSocketServer {
         }
 
         // users id ("initchat~123&124&434")
-        if (s.startsWith("initchat~")) {
-            initChat(webSocket, s);
+        else if (s.startsWith("initchat~")) {
+            initChat(s);
         }
 
         // chat id ("chat~id~message")
-        if (s.startsWith("chat~")) {
+        else if (s.startsWith("chat~")) {
             sendMessage(webSocket, s);
         }
 
         // ("destroychat~id")
-        if (s.startsWith("destroychat~")) {
+        else if (s.startsWith("destroychat~")) {
             destroyChat(s);
         }
 
         // ("exitchat~chatid" or "exitchat~chatid~userid)
-        if (s.startsWith("exitchat~")) {
+        else if (s.startsWith("exitchat~")) {
             exitFromChat(webSocket, s);
         }
 
         // ("addtochat~chatid~userid")
-        if (s.startsWith("addtochat~")) {
+        else if (s.startsWith("addtochat~")) {
             addToChat(s);
         }
+
+        // ("ping")
+        else {
+            LinkedList<WebSocket> list = new LinkedList<>();
+            list.add(webSocket);
+            broadcast("pong", list);
+        }
+
     }
 
     public void onError(WebSocket webSocket, Exception e) {
-        System.out.println(String.format("Socket %s onError %s", webSocket, e));
+        System.out.printf("Socket %s onError %s%n", webSocket, e);
     }
 
     private void sendMove(WebSocket webSocket, String message) {
@@ -149,15 +154,11 @@ public class SocketServerService extends WebSocketServer {
         broadcast(JsonUtil.getJsonString(user), UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId).keySet());
     }
 
-    private void initChat(WebSocket webSocket, String message) {
+    private void initChat(String message) {
         String[] strings = message.split("~");
 
         Chat chat = new Chat();
-        chat.setWebSockets(new HashSet<WebSocket>()
-//        {{
-//            add(webSocket);
-//        }}
-        );
+        chat.setWebSockets(new HashSet<>());
         String chatId = UUID.randomUUID().toString();
         chat.setId(chatId);
         System.out.println("Chat ID: " + chatId);
