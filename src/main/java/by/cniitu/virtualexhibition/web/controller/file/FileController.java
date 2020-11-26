@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping(value = "/files")
+@CrossOrigin("*")
 public class FileController {
 
     @Autowired
@@ -42,7 +44,6 @@ public class FileController {
                 .body(resource);
     }
 
-    @CrossOrigin("*")
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> downloadFile(@RequestParam int fileId, @RequestParam int userId) {
         by.cniitu.virtualexhibition.entity.file.File fileFromDB = fileService.getFile(fileId);
@@ -67,7 +68,6 @@ public class FileController {
                 .body(resource);
     }
 
-    @CrossOrigin("*")
     @GetMapping("/download_asset")
     public ResponseEntity<InputStreamResource> downloadFile(@RequestParam("file") String fileName,
                                                             @RequestParam("os") String os) {
@@ -86,13 +86,11 @@ public class FileController {
                 .body(resource);
     }
 
-    @CrossOrigin("*")
     @GetMapping("/standobject/{id}")
     public List<by.cniitu.virtualexhibition.entity.file.File> getAllFilesByStandObjectId(@PathVariable int id){
         return fileService.getFilesByStandObjectId(id);
     }
 
-    @CrossOrigin("*")
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteFile(@RequestParam int fileId, @RequestParam int userId){
         if(!fileService.isFileExists(fileId, userId)){
@@ -102,6 +100,31 @@ public class FileController {
         //add action to DB
         actionService.save(userId, fileId, ActionTypeUtil.actionType.get("deleted"));
         return ResponseEntity.ok("Delete file with id: " + fileId);
+    }
+
+    String filePath = "C:/Users/u108/Desktop/theExhibitions/files/";
+
+    @PostMapping("/api/upload")
+    // TODO add everything to the database
+    // TODO the name of a file and time of the last modification have to be two separate columns
+    // TODO files can have different types. Bundles (different folder), images, ...
+    public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file,
+                                         @RequestParam("lastModified") String lastModified) throws Exception{
+        String originalFilename = file.getOriginalFilename();
+        System.out.println("originalFilename = " + originalFilename);
+        if(originalFilename == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"the original file name is null\"}");
+        FileNameAndType fileNameAndType = FileUtil.getFileNameAndType(originalFilename);
+        String newFilename = fileNameAndType.name + "~~~" + lastModified + "." + fileNameAndType.type;
+        String path = filePath + newFilename;
+        System.out.println("path = " + path);
+        File new_file = new File(path);
+        if (new_file.createNewFile()) {
+            file.transferTo(new_file);
+        }
+        System.out.println("saved");
+        // TODO return file id to the user
+        return ResponseEntity.ok("{\"message\": \"uploaded " + originalFilename + "\"}");
     }
 
 }
