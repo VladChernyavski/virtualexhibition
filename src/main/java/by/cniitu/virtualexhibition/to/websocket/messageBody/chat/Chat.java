@@ -1,4 +1,4 @@
-package by.cniitu.virtualexhibition.to.websocket;
+package by.cniitu.virtualexhibition.to.websocket.messageBody.chat;
 
 import org.java_websocket.WebSocket;
 

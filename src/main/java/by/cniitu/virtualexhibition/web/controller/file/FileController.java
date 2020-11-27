@@ -102,6 +102,9 @@ public class FileController {
         return ResponseEntity.ok("Delete file with id: " + fileId);
     }
 
+    // TODO write an endpoint that says to client the link to download the file from id
+    // TODO it multiple
+
     String filePath = "C:/Users/u108/Desktop/theExhibitions/files/";
 
     @PostMapping("/api/upload")

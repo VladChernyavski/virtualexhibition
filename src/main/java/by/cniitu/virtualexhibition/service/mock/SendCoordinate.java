@@ -1,7 +1,8 @@
 package by.cniitu.virtualexhibition.service.mock;
 
 import by.cniitu.virtualexhibition.service.SocketServerService;
-import by.cniitu.virtualexhibition.to.websocket.UserTo;
+import by.cniitu.virtualexhibition.to.websocket.SocketTo;
+import by.cniitu.virtualexhibition.to.websocket.messageBody.coordinates.CoordinatesToClient;
 import by.cniitu.virtualexhibition.util.JsonUtil;
 
 import java.util.LinkedList;
@@ -9,29 +10,29 @@ import java.util.List;
 
 public class SendCoordinate extends Thread {
 
-    public static final List<UserTo> users = new LinkedList<UserTo>(){{
-        add(new UserTo(1, 2, 0d, 0d, -3.11d));
-        add(new UserTo(1, 2, 0.91d, 0d, -2.88d));
-        add(new UserTo(1, 2, 1.75d, 0d, -2.525d));
-        add(new UserTo(1, 2, 2.543d, 0d, -2.147d));
-        add(new UserTo(1, 2, 2.777d, 0d, -1.447d));
-        add(new UserTo(1, 2, 2.67d, 0d, -0.6d));
-        add(new UserTo(1, 2, 2.531d, 0d, 0.141d));
-        add(new UserTo(1, 2, 2.274d, 0d, 0.929d));
-        add(new UserTo(1, 2, 1.776d, 0d, 1.446d));
-        add(new UserTo(1, 2, 0.878d, 0d, 1.684d));
-        add(new UserTo(1, 2, -0.082d, 0d, 1.854d));
-        add(new UserTo(1, 2, -0.981d, 0d, 1.8d));
-        add(new UserTo(1, 2, -1.783d, 0d, 1.593d));
-        add(new UserTo(1, 2, -2.225d, 0d, 1.244d));
-        add(new UserTo(1, 2, -2.451, 0d, 0.579d));
-        add(new UserTo(1, 2, -2.747d, 0d, -0.051d));
-        add(new UserTo(1, 2, -2.954, 0d, -0.849d));
-        add(new UserTo(1, 2, -2.806, 0d, -1.669d));
-        add(new UserTo(1, 2, -2.613, 0d, -2.384d));
-        add(new UserTo(1, 2, -2.23, 0d, -2.937d));
-        add(new UserTo(1, 2, -1.598, 0d, -3.305d));
-        add(new UserTo(1, 2, -0.781, 0d, -3.195d));
+    public static final List<CoordinatesToClient> users = new LinkedList<CoordinatesToClient>(){{
+        add(new CoordinatesToClient(2, 0d, -3.11d, "#000000"));
+        add(new CoordinatesToClient( 2, 0.91d, -2.88d, "#110000"));
+        add(new CoordinatesToClient( 2, 1.75d, -2.525d, "#220000"));
+        add(new CoordinatesToClient( 2, 2.543d, -2.147d, "#330000"));
+        add(new CoordinatesToClient( 2, 2.777d, -1.447d, "#440000"));
+        add(new CoordinatesToClient( 2, 2.67d, -0.6d, "#550000"));
+        add(new CoordinatesToClient( 2, 2.531d, 0.141d, "#660000"));
+        add(new CoordinatesToClient( 2, 2.274d, 0.929d, "#770000"));
+        add(new CoordinatesToClient( 2, 1.776d, 1.446d, "#880000"));
+        add(new CoordinatesToClient( 2, 0.878d, 1.684d, "#990000"));
+        add(new CoordinatesToClient( 2, -0.082d, 1.854d, "#AA0000"));
+        add(new CoordinatesToClient( 2, -0.981d, 1.8d, "#BB0000"));
+        add(new CoordinatesToClient( 2, -1.783d, 1.593d, "#AA0000"));
+        add(new CoordinatesToClient( 2, -2.225d, 1.244d, "#990000"));
+        add(new CoordinatesToClient( 2, -2.451, 0.579d, "#880000"));
+        add(new CoordinatesToClient( 2, -2.747d, -0.051d, "#770000"));
+        add(new CoordinatesToClient( 2, -2.954, -0.849d, "#660000"));
+        add(new CoordinatesToClient( 2, -2.806, -1.669d, "#550000"));
+        add(new CoordinatesToClient( 2, -2.613, -2.384d, "#440000"));
+        add(new CoordinatesToClient( 2, -2.23, -2.937d, "#330000"));
+        add(new CoordinatesToClient( 2, -1.598, -3.305d, "#220000"));
+        add(new CoordinatesToClient( 2, -0.781, -3.195d, "#110000"));
     }};
 
     SocketServerService socketServer;
@@ -43,15 +44,19 @@ public class SendCoordinate extends Thread {
     @Override
     public void run() {
         while (true){
-            List<UserTo> users = SendCoordinate.users;
+            List<CoordinatesToClient> users = SendCoordinate.users;
 
-            for(UserTo u : users){
+            for(CoordinatesToClient u : users){
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                socketServer.broadcast(JsonUtil.getJsonString(u));
+                try {
+                    socketServer.broadcast(JsonUtil.getJsonString(new SocketTo(u)));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
 
         }

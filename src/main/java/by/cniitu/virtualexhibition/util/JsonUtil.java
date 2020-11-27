@@ -1,6 +1,6 @@
 package by.cniitu.virtualexhibition.util;
 
-import by.cniitu.virtualexhibition.to.websocket.UserTo;
+import by.cniitu.virtualexhibition.to.websocket.SocketTo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,9 +18,9 @@ public class JsonUtil {
         return jsonString;
     }
 
-    public static UserTo getUserToByJson(String jsonString){
+    public static SocketTo getSocketToByJson(String jsonString){
         try {
-            return objectMapper.readValue(jsonString, UserTo.class);
+            return objectMapper.readValue(jsonString, SocketTo.class);
         } catch (JsonProcessingException e) {
             System.out.println(e.getMessage());
         }

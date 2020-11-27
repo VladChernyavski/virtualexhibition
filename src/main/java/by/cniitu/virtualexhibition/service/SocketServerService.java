@@ -1,8 +1,15 @@
 package by.cniitu.virtualexhibition.service;
 
 import by.cniitu.virtualexhibition.service.mock.SendCoordinate;
-import by.cniitu.virtualexhibition.to.websocket.Chat;
-import by.cniitu.virtualexhibition.to.websocket.UserTo;
+import by.cniitu.virtualexhibition.to.websocket.SocketTo;
+import by.cniitu.virtualexhibition.to.websocket.messageBody.MessageBody;
+import by.cniitu.virtualexhibition.to.websocket.messageBody.Ping;
+import by.cniitu.virtualexhibition.to.websocket.messageBody.chat.*;
+import by.cniitu.virtualexhibition.to.websocket.messageBody.chat.action.ChatAction;
+import by.cniitu.virtualexhibition.to.websocket.messageBody.chat.action.PingPongAction;
+import by.cniitu.virtualexhibition.to.websocket.messageBody.chat.action.UserAction;
+import by.cniitu.virtualexhibition.to.websocket.messageBody.coordinates.CoordinatesToClient;
+import by.cniitu.virtualexhibition.to.websocket.messageBody.coordinates.CoordinatesToServer;
 import by.cniitu.virtualexhibition.util.JsonUtil;
 import by.cniitu.virtualexhibition.util.UserUtil;
 import org.java_websocket.WebSocket;
@@ -38,7 +45,7 @@ public class SocketServerService extends WebSocketServer {
      */
     public void onOpen(WebSocket webSocket, ClientHandshake clientHandshake) {
         System.out.println("Socket onOpen " + webSocket);
-
+        // we do not send the coordinates of other users to new one because we do not know the id of the exhibition
     }
 
     /**
@@ -47,67 +54,70 @@ public class SocketServerService extends WebSocketServer {
     public void onClose(WebSocket webSocket, int code, String reason, boolean remote) {
         System.out.println("Socket onClose " + webSocket);
 
-        for (Map.Entry<Integer, Map<WebSocket, UserTo>> mapEntry : UserUtil.exhibitionWithWebsocketAndUser.entrySet()) {
+        // cancel user from the exhibition
+        for (Map.Entry<Integer, Map<WebSocket, CoordinatesToClient>> mapEntry : UserUtil.exhibitionWithWebsocketAndUser.entrySet()) {
             mapEntry.getValue().keySet().remove(webSocket);
         }
 
+        // cancel connection between webSocket and userId
         Map.Entry<Integer, WebSocket> integerWebSocketEntry = UserUtil.userIdWithWebsocket.entrySet().stream()
                 .filter(ws -> ws.getValue().equals(webSocket))
                 .findFirst()
                 .orElse(null);
-
         if (!Objects.isNull(integerWebSocketEntry)) {
             Integer userId = integerWebSocketEntry.getKey();
             UserUtil.userIdWithWebsocket.remove(userId);
-
-            broadcast("We have disconnected client: " + userId);
+            try {
+                broadcast(JsonUtil.getJsonString(new SocketTo(new UserWentOutToClient(userId))));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-        // Just for example, send information to all clients
-        // TODO обработать на клиенте ( возвращать id)
-
     }
 
     /**
      * Called when client sends message
      */
+    // TODO create a mapping from messageType to handlers
     public void onMessage(WebSocket webSocket, String s) {
-        System.out.printf("Socket %s onMessage %s%n", webSocket, s);
 
-        //user coordinate, exhibition id, user id ("move~json user")
-        if (s.startsWith("move~")) {
-            sendMove(webSocket, s);
+        SocketTo socketTo = JsonUtil.getSocketToByJson(s);
+        System.out.println("socketTo = " + socketTo);
+        if(socketTo == null){
+            // TODO is the message have an error disconnect the person forever
+            webSocket.send("{\"message\": \"error\"}");
+            return;
         }
 
-        // users id ("initchat~123&124&434")
-        else if (s.startsWith("initchat~")) {
-            initChat(s);
-        }
+        MessageBody messageBody = socketTo.getMessageBody();
 
-        // chat id ("chat~id~message")
-        else if (s.startsWith("chat~")) {
-            sendMessage(webSocket, s);
+        if (socketTo.getMessageType() == 0){ // user motion
+            sendMove(webSocket, messageBody);
         }
-
-        // ("destroychat~id")
-        else if (s.startsWith("destroychat~")) {
-            destroyChat(s);
+        else if (socketTo.getMessageType() == 1){ // new message in a chat
+            sendMessage(webSocket, messageBody);
         }
-
-        // ("exitchat~chatid" or "exitchat~chatid~userid)
-        else if (s.startsWith("exitchat~")) {
-            exitFromChat(webSocket, s);
+        else if (socketTo.getMessageType() == 2){ // new chat
+            initChat(messageBody);
         }
-
-        // ("addtochat~chatid~userid")
-        else if (s.startsWith("addtochat~")) {
-            addToChat(s);
+        else if (socketTo.getMessageType() == 3){ // chat destroyed
+            destroyChat(messageBody);
         }
-
-        // ("ping")
+        else if (socketTo.getMessageType() == 4){ // user went out or new user (chat)
+            String messageDesc = messageBody.getMessageDesc();
+            if(messageDesc.equals("user went out")){
+                exitFromChat(messageBody);
+            }
+            else if(messageDesc.equals("new user")){
+                addToChat(messageBody);
+            }
+        }
         else {
-            LinkedList<WebSocket> list = new LinkedList<>();
-            list.add(webSocket);
-            broadcast("pong", list);
+            try {
+                webSocket.send(JsonUtil.getJsonString(new SocketTo(new Ping(PingPongAction.Ping))));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
     }
@@ -116,69 +126,62 @@ public class SocketServerService extends WebSocketServer {
         System.out.printf("Socket %s onError %s%n", webSocket, e);
     }
 
-    private void sendMove(WebSocket webSocket, String message) {
-        String[] strings = message.split("~");
+    // if some user moves we tall it to all other users
+    private void sendMove(WebSocket webSocket, MessageBody messageBody) {
+        CoordinatesToServer coordinatesToServer = (CoordinatesToServer)messageBody;
+        int exhibitionId = coordinatesToServer.getExhibitId();
 
-        UserTo user = JsonUtil.getUserToByJson(strings[1]);
-        if (Objects.isNull(user)) {
-            return;
-        }
+        if (!UserUtil.userIdWithWebsocket.containsKey(coordinatesToServer.getUserId())) { // if user first time invoke move
+            UserUtil.userIdWithWebsocket.put(coordinatesToServer.getUserId(), webSocket);
 
-        int exhibitionId = user.getExhibId();
-
-        //if user first time invoke move - flag is true
-        boolean flag = false;
-        if (!UserUtil.userIdWithWebsocket.containsKey(user.getUserId())) {
-            UserUtil.userIdWithWebsocket.put(user.getUserId(), webSocket);
-            flag = true;
-        }
-
-        Map<Integer, Map<WebSocket, UserTo>> exhibitionWithWebsocketAndUser = UserUtil.exhibitionWithWebsocketAndUser;
-        if (exhibitionWithWebsocketAndUser.containsKey(exhibitionId)) {
-            exhibitionWithWebsocketAndUser.get(exhibitionId).put(webSocket, user);
-        } else {
-            exhibitionWithWebsocketAndUser.put(exhibitionId, new ConcurrentHashMap<WebSocket, UserTo>() {{
-                put(webSocket, user);
-            }});
-        }
-
-        if (flag) {
-            for (UserTo u : UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId).values()) {
-                if(user.equals(u)){
-                    continue;
-                }
+            // sent to hem all other coordinates from this exhibition
+            for (CoordinatesToClient u : UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId).values()) {
                 webSocket.send(JsonUtil.getJsonString(u));
             }
         }
 
-        broadcast(JsonUtil.getJsonString(user), UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId).keySet());
+        if (UserUtil.exhibitionWithWebsocketAndUser.containsKey(exhibitionId)) {
+            UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId).put(webSocket, coordinatesToServer);
+        } else {
+            UserUtil.exhibitionWithWebsocketAndUser.put(exhibitionId,
+                    new ConcurrentHashMap<WebSocket, CoordinatesToClient>() {{
+                put(webSocket, coordinatesToServer);
+            }});
+        }
+
+        try {
+            broadcast(JsonUtil.getJsonString(new SocketTo(coordinatesToServer)),
+                    UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId).keySet());
+        } catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 
-    private void initChat(String message) {
-        String[] strings = message.split("~");
-
+    private void initChat(MessageBody messageBody) {
+        NewChatToServer newChatToServer = (NewChatToServer) messageBody;
         Chat chat = new Chat();
         chat.setWebSockets(new HashSet<>());
         String chatId = UUID.randomUUID().toString();
         chat.setId(chatId);
         System.out.println("Chat ID: " + chatId);
-        String[] userIds = strings[1].split("&");
-        for (String s : userIds) {
-            int id = Integer.parseInt(s);
+        for (Integer id : newChatToServer.getUserIds()) {
             chat.getWebSockets().add(UserUtil.userIdWithWebsocket.get(id));
         }
         Chat.chats.add(chat);
-        //send chat id all users from chat
-        broadcast("new chat~" + chat.getId(), chat.getWebSockets());
+
+        //send chat id to all users from chat
+        try {
+            broadcast(JsonUtil.getJsonString(new SocketTo(new NewToClientOrDestroyedChatTo(chatId, ChatAction.Create))), chat.getWebSockets());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void sendMessage(WebSocket webSocket, String message) {
-        String[] strings = message.split("~");
-        String chatId = strings[1];
-        String messageToUsers = strings[2];
+    private void sendMessage(WebSocket webSocket, MessageBody messageBody) {
+        MessageTo messageTo = (MessageTo) messageBody;
 
         Chat chat = Chat.chats.stream()
-                .filter(c -> c.getId().equalsIgnoreCase(chatId))
+                .filter(c -> c.getId().equalsIgnoreCase(messageTo.getChatId()))
                 .findFirst().orElse(null);
 
         if (Objects.isNull(chat)) {
@@ -189,17 +192,21 @@ public class SocketServerService extends WebSocketServer {
                 .filter(ws -> ws.getValue().equals(webSocket))
                 .findFirst()
                 .orElse(null);
+
         if (Objects.isNull(integerWebSocketEntry)) {
             return;
         }
-        int userId = integerWebSocketEntry.getKey();
 
-        broadcast("new message~" + chatId + "~" + userId + "~" + messageToUsers, chat.getWebSockets());
+        try {
+            broadcast(JsonUtil.getJsonString(new SocketTo(new MessageTo(messageTo))), chat.getWebSockets());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void destroyChat(String message) {
-        String[] strings = message.split("~");
-        String chatId = strings[1];
+    private void destroyChat(MessageBody messageBody) {
+        NewToClientOrDestroyedChatTo newToClientOrDestroyedChatTo = (NewToClientOrDestroyedChatTo) messageBody;
+        String chatId = newToClientOrDestroyedChatTo.getChatId();
 
         Chat chat = Chat.chats.stream()
                 .filter(c -> c.getId().equals(chatId))
@@ -207,28 +214,32 @@ public class SocketServerService extends WebSocketServer {
 
         if (Objects.isNull(chat)) {
             return;
+        }
+
+        try {
+            broadcast(JsonUtil.getJsonString(new SocketTo(new NewToClientOrDestroyedChatTo(chatId, ChatAction.Destroy))),
+                    chat.getWebSockets());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         Chat.chats.remove(chat);
     }
 
-    private void exitFromChat(WebSocket webSocket, String message) {
-        String[] strings = message.split("~");
-        String chatId = strings[1];
-
+    private void exitFromChat(MessageBody messageBody) {
+        UserWentOutFromChatOrNewTo userWentOutFromChatOrNewTo = (UserWentOutFromChatOrNewTo) messageBody;
         Chat chat = Chat.chats.stream()
-                .filter(c -> c.getId().equals(chatId))
+                .filter(c -> c.getId().equals(userWentOutFromChatOrNewTo.getChatId()))
                 .findFirst().orElse(null);
-
         if (Objects.isNull(chat)) {
             return;
         }
+        //if (strings.length > 2) {
 
-        int userId;
-        if (strings.length > 2) {
-            userId = Integer.parseInt(strings[2]);
-            chat.getWebSockets().remove(UserUtil.userIdWithWebsocket.get(userId));
-        } else {
+        chat.getWebSockets().remove(UserUtil.userIdWithWebsocket.get(userWentOutFromChatOrNewTo.getUserId()));
+
+        // users were able to exit without giving an id
+        /*} else {
             chat.getWebSockets().remove(webSocket);
             Map.Entry<Integer, WebSocket> integerWebSocketEntry = UserUtil.userIdWithWebsocket.entrySet().stream()
                     .filter(ws -> ws.getValue().equals(webSocket))
@@ -238,26 +249,37 @@ public class SocketServerService extends WebSocketServer {
                 return;
             }
             userId = integerWebSocketEntry.getKey();
-        }
+        }*/
 
-        broadcast("User " + userId + " leave chat", chat.getWebSockets());
+        try {
+            broadcast(JsonUtil.getJsonString(new SocketTo(new UserWentOutFromChatOrNewTo(userWentOutFromChatOrNewTo,
+                    UserAction.Exit))), chat.getWebSockets());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void addToChat(String message) {
-        String[] strings = message.split("~");
-        String chatId = strings[1];
-        int userId = Integer.parseInt(strings[2]);
+    private void addToChat(MessageBody messageBody) {
+
+        UserWentOutFromChatOrNewTo userWentOutFromChatOrNewTo = (UserWentOutFromChatOrNewTo) messageBody;
 
         Chat chat = Chat.chats.stream()
-                .filter(c -> c.getId().equals(chatId))
+                .filter(c -> c.getId().equals(userWentOutFromChatOrNewTo.getChatId()))
                 .findFirst().orElse(null);
 
         if (Objects.isNull(chat)) {
             return;
         }
 
-        broadcast("Added new user " + userId, chat.getWebSockets());
+        chat.getWebSockets().add(UserUtil.userIdWithWebsocket.get(userWentOutFromChatOrNewTo.getUserId()));
 
-        chat.getWebSockets().add(UserUtil.userIdWithWebsocket.get(userId));
+        try {
+            broadcast(JsonUtil.getJsonString(new SocketTo(new UserWentOutFromChatOrNewTo(userWentOutFromChatOrNewTo,
+                    UserAction.Enter))), chat.getWebSockets());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 }
