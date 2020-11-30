@@ -111,6 +111,9 @@ public class FileController {
     // TODO add everything to the database
     // TODO the name of a file and time of the last modification have to be two separate columns
     // TODO files can have different types. Bundles (different folder), images, ...
+
+    // TODO I will do it
+
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file,
                                          @RequestParam("lastModified") String lastModified) throws Exception{
         String originalFilename = file.getOriginalFilename();
