@@ -60,4 +60,8 @@ public class StandObject {
     @ManyToMany(mappedBy = "standObjects")
     private List<File> files;
 
+    @ManyToOne
+    @JoinColumn(name = "texture_id")
+    private File texture;
+
 }

@@ -14,5 +14,6 @@ public class StandObjectTo {
     private LinkedList<Double> rotations;
     private LinkedList<Double> scale;
     private ObjectModel objectModel;
+    private String texture;
 
 }

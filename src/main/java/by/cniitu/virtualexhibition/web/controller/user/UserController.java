@@ -72,6 +72,9 @@ public class UserController {
     @CrossOrigin("*")
     @PostMapping("/auth")
     public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest request) {
+
+        // TODO not permit the second login
+
         System.out.println("[UMKA] request.getToken() = " + request.getToken());
         User user = getUserByClaims(request.getToken(), "auth");
         System.out.println("[UMKA] user = " + user);

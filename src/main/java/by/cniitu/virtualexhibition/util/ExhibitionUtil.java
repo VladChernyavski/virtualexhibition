@@ -60,6 +60,8 @@ public class ExhibitionUtil {
                 }});
                 standObjectTo.setObjectModel(standObject.getObjectModel());
 
+                // TODO check
+                standObjectTo.setTexture(standObject.getTexture().getPath());
                 standObjectTos.add(standObjectTo);
             }
 
