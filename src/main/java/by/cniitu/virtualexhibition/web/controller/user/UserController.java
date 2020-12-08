@@ -71,7 +71,7 @@ public class UserController {
 
     @CrossOrigin("*")
     @PostMapping("/auth")
-    public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest request) {
+    public ResponseEntity<Object> auth(@RequestBody AuthRequest request) {
         System.out.println("[UMKA] request.getToken() = " + request.getToken());
         User user = getUserByClaims(request.getToken(), "auth");
         System.out.println("[UMKA] user = " + user);
@@ -79,6 +79,11 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         Integer id = user.getId();
+
+        if(UserUtil.userIdWithWebsocket.containsKey(id)){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"User with such email already logged in\"}");
+        }
+
         System.out.println("[UMKA] start response token generation " + user);
         String token = jwtProvider.generateToken(user.getEmail(), user.getPassword());
         System.out.println("[UMKA] response token generated " + token);
