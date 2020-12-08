@@ -4,12 +4,23 @@ import by.cniitu.virtualexhibition.to.websocket.messageBody.chat.action.PingPong
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Getter
 @NoArgsConstructor
 public class Ping extends MessageBody{
 
+    static Map<PingPongAction, String> pingPongActionMap = new HashMap<>();
+
+    static{
+        pingPongActionMap.put(PingPongAction.Ping, "ping");
+        pingPongActionMap.put(PingPongAction.Pong, "pong");
+        pingPongActionMap.put(PingPongAction.Error, "error");
+    }
+
     public Ping(PingPongAction pingPongAction){
-        super(pingPongAction == PingPongAction.Ping? "ping" : "pong");
+        super(pingPongActionMap.get(pingPongAction));
     }
 
     @Override

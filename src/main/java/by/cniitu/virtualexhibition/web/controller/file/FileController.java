@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @RestController
@@ -26,11 +28,20 @@ public class FileController {
     @Autowired
     private UserActionService actionService;
 
-    // TODO DELETE
-    @GetMapping("/api/download_old")
-    public ResponseEntity<InputStreamResource> downloadFile(@RequestParam("file") String fileName) {
-        FileAndInputStreamResource fileAndInputStreamResource = FileUtil.getFileAndInputStreamResource(fileName);
+    /**
+     * download file when we know fileName and type
+     * @param type can be "image" or "file". Nothing else can be uploaded yet
+     */
+    @GetMapping("/api/download")
+    public ResponseEntity<InputStreamResource> downloadFile(@RequestParam("fileName") String fileName,
+                                                            @RequestParam("type") String type) {
+        System.out.println("fileName = " + fileName);
+        System.out.println("type = " + type);
+        FileAndInputStreamResource fileAndInputStreamResource = FileUtil.getFileAndInputStreamResource(fileName, type);
+        return getInputStreamResourceResponseEntity(fileAndInputStreamResource);
+    }
 
+    private ResponseEntity<InputStreamResource> getInputStreamResourceResponseEntity(FileAndInputStreamResource fileAndInputStreamResource) {
         if (fileAndInputStreamResource == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
 
@@ -44,6 +55,10 @@ public class FileController {
                 .body(resource);
     }
 
+    /**
+     * @param userId to be used in statistics
+     * TODO use it only when user clicks the file
+     */
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> downloadFile(@RequestParam int fileId, @RequestParam int userId) {
         by.cniitu.virtualexhibition.entity.file.File fileFromDB = fileService.getFile(fileId);
@@ -51,7 +66,9 @@ public class FileController {
         if(Objects.isNull(fileFromDB)){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
-        FileAndInputStreamResource fileAndInputStreamResource = FileUtil.getFileAndInputStreamResource(fileFromDB.getPath());
+        FileAndInputStreamResource fileAndInputStreamResource
+                = FileUtil.getFileAndInputStreamResource(fileFromDB.getPath(),
+                fileFromDB.getFileType().getName().equals("image")? "image": "file");
 
         if (fileAndInputStreamResource == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
@@ -68,22 +85,24 @@ public class FileController {
                 .body(resource);
     }
 
+    static private Map<String, String> runtimePlatformMap = new HashMap<>();
+
+    static{
+        runtimePlatformMap.put("WindowsPlayer", "windows");
+        runtimePlatformMap.put("WindowsEditor", "windows");
+    }
+
     @GetMapping("/download_asset")
-    public ResponseEntity<InputStreamResource> downloadFile(@RequestParam("file") String fileName,
-                                                            @RequestParam("os") String os) {
-        FileAndInputStreamResource fileAndInputStreamResource = FileUtil.getFileAndInputStreamResource(fileName, os);
+    public ResponseEntity<InputStreamResource> downloadAsset(@RequestParam("fileName") String fileName,
+                                                            @RequestParam("runtimePlatform") String runtimePlatform) {
 
-        if (fileAndInputStreamResource == null)
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        String os = runtimePlatformMap.get(runtimePlatform);
+        if(os != null)
+            runtimePlatform = os;
 
-        File file = fileAndInputStreamResource.getFile();
-        InputStreamResource resource = fileAndInputStreamResource.getInputStreamResource();
+        FileAndInputStreamResource fileAndInputStreamResource = FileUtil.getFileAndInputStreamResourceAsset(fileName, runtimePlatform);
 
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .contentLength(file.length()) //
-                .body(resource);
+        return getInputStreamResourceResponseEntity(fileAndInputStreamResource);
     }
 
     @GetMapping("/standobject/{id}")
@@ -105,20 +124,30 @@ public class FileController {
     // TODO write an endpoint that says to client the link to download the file from id
     // TODO it multiple
 
-    String filePath = "C:/Users/u108/Desktop/theExhibitions/files/";
-
-    @PostMapping("/api/upload")
     // TODO add everything to the database
     // TODO the name of a file and time of the last modification have to be two separate columns
     // TODO files can have different types. Bundles (different folder), images, ...
+
+    // TODO I will do it
+
+    /**
+     * @param type can be "image", "file" or "bundle". Nothing else can be uploaded yet
+     */
+    @PostMapping("/api/upload")
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file,
-                                         @RequestParam("lastModified") String lastModified) throws Exception{
+                                         @RequestParam("lastModified") String lastModified,
+                                         @RequestParam("type") String type,
+                                         @RequestParam("userId") Integer userId,
+                                         @RequestParam("runtimePlatform") Integer runtimePlatform) throws Exception{
         String originalFilename = file.getOriginalFilename();
         System.out.println("originalFilename = " + originalFilename);
         if(originalFilename == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"the original file name is null\"}");
         FileNameAndType fileNameAndType = FileUtil.getFileNameAndType(originalFilename);
         String newFilename = fileNameAndType.name + "~~~" + lastModified + "." + fileNameAndType.type;
+        String filePath = FileUtil.getFilePath(type);
+        if(filePath == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"type error\"}");
         String path = filePath + newFilename;
         System.out.println("path = " + path);
         File new_file = new File(path);

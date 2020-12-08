@@ -114,7 +114,7 @@ public class SocketServerService extends WebSocketServer {
         }
         else {
             try {
-                webSocket.send(JsonUtil.getJsonString(new SocketTo(new Ping(PingPongAction.Ping))));
+                webSocket.send(JsonUtil.getJsonString(new SocketTo(new Ping(PingPongAction.Pong))));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -136,7 +136,11 @@ public class SocketServerService extends WebSocketServer {
 
             // sent to hem all other coordinates from this exhibition
             for (CoordinatesToClient u : UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId).values()) {
-                webSocket.send(JsonUtil.getJsonString(u));
+                try {
+                    webSocket.send(JsonUtil.getJsonString(new SocketTo(u)));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -235,9 +239,6 @@ public class SocketServerService extends WebSocketServer {
             return;
         }
         //if (strings.length > 2) {
-
-        chat.getWebSockets().remove(UserUtil.userIdWithWebsocket.get(userWentOutFromChatOrNewTo.getUserId()));
-
         // users were able to exit without giving an id
         /*} else {
             chat.getWebSockets().remove(webSocket);
@@ -257,6 +258,9 @@ public class SocketServerService extends WebSocketServer {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        chat.getWebSockets().remove(UserUtil.userIdWithWebsocket.get(userWentOutFromChatOrNewTo.getUserId()));
+
     }
 
     private void addToChat(MessageBody messageBody) {
