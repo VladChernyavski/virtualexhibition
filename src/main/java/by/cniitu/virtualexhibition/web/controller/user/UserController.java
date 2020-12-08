@@ -33,12 +33,12 @@ public class UserController {
         System.out.println("request.getToken() = " + request.getToken());
         User noConfirmUser = getUserByClaims(request.getToken(), "register");
         System.out.println("noConfirmUser = " + noConfirmUser);
-        if(Objects.isNull(noConfirmUser)){
+        if (Objects.isNull(noConfirmUser)) {
             System.out.println("BAD_REQUEST");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         System.out.println("register 1");
-        if(userService.isEmailExist(noConfirmUser.getEmail())){
+        if (userService.isEmailExist(noConfirmUser.getEmail())) {
             System.out.println("BAD_REQUEST User with such email exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"User with such email exists\"}");
         }
@@ -71,7 +71,7 @@ public class UserController {
 
     @CrossOrigin("*")
     @PostMapping("/auth")
-    public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest request) {
+    public ResponseEntity<Object> auth(@RequestBody AuthRequest request) {
         System.out.println("[UMKA] request.getToken() = " + request.getToken());
         User user = getUserByClaims(request.getToken(), "auth");
         System.out.println("[UMKA] user = " + user);
@@ -79,6 +79,11 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         Integer id = user.getId();
+
+        if (UserUtil.userIdWithWebsocket.containsKey(id)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"User with such email already logged in\"}");
+        }
+
         System.out.println("[UMKA] start response token generation " + user);
         String token = jwtProvider.generateToken(user.getEmail(), user.getPassword());
         System.out.println("[UMKA] response token generated " + token);
@@ -116,7 +121,7 @@ public class UserController {
             String email = claims.get("email").toString();
             user = (User) userService.loadUserByUsername(email);
         }
-        if (method.equals("register")){
+        if (method.equals("register")) {
             String firstName = claims.get("name").toString();
             String lastName = claims.get("surname").toString();
             String nickName = claims.get("nickname").toString();
@@ -134,13 +139,6 @@ public class UserController {
     }
 
 
-
-
-
-
-
-
-
     //TODO DELETE
     @GetMapping("/authtoken")
     public String auth(@RequestParam("l") String login,
@@ -148,7 +146,7 @@ public class UserController {
                        @RequestParam("fn") String firstName,
                        @RequestParam("ln") String lastName,
                        @RequestParam("nn") String nickName
-                       ) {
+    ) {
         Map<String, Object> claims = new HashMap<String, Object>() {{
             put("email", login);
             put("password", password);
