@@ -2,6 +2,8 @@ package by.cniitu.virtualexhibition.entity.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,12 +15,15 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "user_table")
-@Data
+//@Data
+@Getter
+@Setter
 @JsonIgnoreProperties({ "password", "enabled", "username", "accountNonExpired",
-        "credentialsNonExpired", "accountNonLocked", "authorities", "userActions" })
+        "credentialsNonExpired", "accountNonLocked", "authorities", "userActions", "subscriptions", "subscribers" })
 @ToString
 public class User implements UserDetails, Serializable {
 
@@ -48,6 +53,17 @@ public class User implements UserDetails, Serializable {
 
     @OneToMany(mappedBy = "user")
     private List<UserAction> userActions;
+
+    @ManyToMany
+    @JoinTable(name = "subscription_subscribers",
+                joinColumns = @JoinColumn(name = "subscriber_id", referencedColumnName = "id"),
+                inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
+    //подписки
+    private Set<User> subscriptions;
+
+    @ManyToMany(mappedBy = "subscriptions")
+    //подписчики
+    private Set<User> subscribers;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
