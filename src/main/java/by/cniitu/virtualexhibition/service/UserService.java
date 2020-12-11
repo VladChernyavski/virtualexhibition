@@ -2,12 +2,11 @@ package by.cniitu.virtualexhibition.service;
 
 import by.cniitu.virtualexhibition.entity.user.User;
 import by.cniitu.virtualexhibition.entity.user.UserRole;
-import by.cniitu.virtualexhibition.repository.user.RoleRepository;
-import by.cniitu.virtualexhibition.repository.user.UserRepository;
+import by.cniitu.virtualexhibition.repository.user.JpaRoleRepository;
+import by.cniitu.virtualexhibition.repository.user.JpaUserRepository;
 import by.cniitu.virtualexhibition.util.UserUtil;
 import by.cniitu.virtualexhibition.web.controller.file.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.MailException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,17 +14,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Base64;
 
 @Service
 public class UserService implements UserDetailsService {
 
     @Autowired
-    private UserRepository userRepository;
+    private JpaUserRepository userRepository;
     @Autowired
-    private RoleRepository roleRepository;
+    private JpaRoleRepository roleRepository;
     @Autowired
     private MailService mailService;
     @Autowired
@@ -50,11 +47,11 @@ public class UserService implements UserDetailsService {
     }
 
     public void delete(int id) {
-        userRepository.delete(id);
+        userRepository.deleteById(id);
     }
 
     public User get(int id) {
-        return userRepository.get(id);
+        return userRepository.findById(id).orElse(null);
     }
 
     public User getByEmail(String email) {
