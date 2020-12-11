@@ -1,7 +1,10 @@
 package by.cniitu.virtualexhibition.web.controller.file;
 
+import by.cniitu.virtualexhibition.entity.user.User;
+import by.cniitu.virtualexhibition.repository.file.JpaFileTypeRepository;
 import by.cniitu.virtualexhibition.service.FileService;
 import by.cniitu.virtualexhibition.service.UserActionService;
+import by.cniitu.virtualexhibition.service.UserService;
 import by.cniitu.virtualexhibition.util.ActionTypeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -27,6 +30,10 @@ public class FileController {
     private FileService fileService;
     @Autowired
     private UserActionService actionService;
+    @Autowired
+    private JpaFileTypeRepository jpaFileTypeRepository;
+    @Autowired
+    private UserService userService;
 
     /**
      * download file when we know fileName and type
@@ -138,25 +145,37 @@ public class FileController {
                                          @RequestParam("lastModified") String lastModified,
                                          @RequestParam("type") String type,
                                          @RequestParam("userId") Integer userId,
-                                         @RequestParam("runtimePlatform") Integer runtimePlatform) throws Exception{
+                                         @RequestParam("runtimePlatform") String runtimePlatform) throws Exception{
         String originalFilename = file.getOriginalFilename();
         System.out.println("originalFilename = " + originalFilename);
+        User user = userService.get(userId);
+        if(user == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"no such user\"}");
         if(originalFilename == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"the original file name is null\"}");
         FileNameAndType fileNameAndType = FileUtil.getFileNameAndType(originalFilename);
-        String newFilename = fileNameAndType.name + "~~~" + lastModified + "." + fileNameAndType.type;
+        String dirName = "user_" + userId + "/";
         String filePath = FileUtil.getFilePath(type);
         if(filePath == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"type error\"}");
+        String dirPath = filePath + dirName;
+        File dir = new File(dirPath);
+        if(!dir.exists()){
+            System.out.println(dir.mkdir());
+        }
+        String newFilename = dirName + fileNameAndType.name + "~~~" + lastModified + "." + fileNameAndType.type;
         String path = filePath + newFilename;
         System.out.println("path = " + path);
         File new_file = new File(path);
-        if (new_file.createNewFile()) {
+        if (!new_file.exists() && new_file.createNewFile()) {
             file.transferTo(new_file);
         }
         System.out.println("saved");
-        // TODO return file id to the user
-        return ResponseEntity.ok("{\"message\": \"uploaded " + originalFilename + "\"}");
+        by.cniitu.virtualexhibition.entity.file.File fileEntity = new by.cniitu.virtualexhibition.entity.file.File();
+        fileEntity.setFileType(jpaFileTypeRepository.getOne(FileUtil.fileTypeToFileTypeId.get(type)));
+        fileEntity.setPath(newFilename);
+        fileEntity.setUser(user);
+        return ResponseEntity.ok("{\"savedFileId\": " + fileService.save(fileEntity).getId() + "}");
     }
 
 }

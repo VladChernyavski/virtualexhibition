@@ -59,9 +59,8 @@ public class ExhibitionUtil {
                     add(standObject.getScale_z());
                 }});
                 standObjectTo.setObjectModel(standObject.getObjectModel());
-
-                // TODO check
                 standObjectTo.setTexture(standObject.getTexture().getPath());
+                standObjectTo.setImage(standObject.getImage());
                 standObjectTos.add(standObjectTo);
             }
 

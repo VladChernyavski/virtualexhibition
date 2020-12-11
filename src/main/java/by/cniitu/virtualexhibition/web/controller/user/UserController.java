@@ -57,7 +57,11 @@ public class UserController {
         User newUser = UserUtil.getUserByParseCode(code);
         if (newUser == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Your link is invalid\"}");
-        userService.create(newUser);
+        try {
+            userService.create(newUser);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"" + ex.getMessage() + "\"}");
+        }
         return ResponseEntity.ok("{\"message\": \"Your email is confirmed\"}");
     }
 
@@ -71,7 +75,7 @@ public class UserController {
 
     @CrossOrigin("*")
     @PostMapping("/auth")
-    public ResponseEntity<AuthResponse> auth(@RequestBody AuthRequest request) {
+    public ResponseEntity<Object> auth(@RequestBody AuthRequest request) {
 
         // TODO not permit the second login
 
@@ -79,7 +83,7 @@ public class UserController {
         User user = getUserByClaims(request.getToken(), "auth");
         System.out.println("[UMKA] user = " + user);
         if (Objects.isNull(user)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\": \"error\"}");
         }
         Integer id = user.getId();
         System.out.println("[UMKA] start response token generation " + user);

@@ -15,5 +15,6 @@ public class StandObjectTo {
     private LinkedList<Double> scale;
     private ObjectModel objectModel;
     private String texture;
+    private Boolean image;
 
 }

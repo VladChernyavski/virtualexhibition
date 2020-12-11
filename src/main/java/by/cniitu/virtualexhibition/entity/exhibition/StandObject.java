@@ -64,4 +64,7 @@ public class StandObject {
     @JoinColumn(name = "texture_id")
     private File texture;
 
+    @Column(name = "image")
+    private Boolean image;
+
 }

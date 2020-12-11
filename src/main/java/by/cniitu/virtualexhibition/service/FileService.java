@@ -2,7 +2,9 @@ package by.cniitu.virtualexhibition.service;
 
 import by.cniitu.virtualexhibition.entity.file.File;
 import by.cniitu.virtualexhibition.repository.file.JpaFileRepository;
+import by.cniitu.virtualexhibition.repository.file.JpaFileTypeRepository;
 import by.cniitu.virtualexhibition.web.controller.file.FileUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +16,15 @@ public class FileService {
 
     @Value("${machine}")
     private String machine;
-
-    private final JpaFileRepository fileRepository;
-
-    public FileService(JpaFileRepository fileRepository){
-        this.fileRepository = fileRepository;
-    }
+    @Autowired
+    private JpaFileRepository fileRepository;
+    @Autowired
+    private JpaFileTypeRepository fileTypeRepository;
 
     @PostConstruct
-    public void setMachine() {
+    public void postConstruct() {
         FileUtil.setMachine(machine);
+        FileUtil.setFileTypes(fileTypeRepository.findAll());
     }
 
     public List<File> getFilesByStandObjectId(int id){
@@ -40,6 +41,10 @@ public class FileService {
 
     public void deleteFile(int fileId){
         fileRepository.delete(fileId);
+    }
+
+    public File save(File file){
+        return fileRepository.save(file);
     }
 
 }

@@ -1,16 +1,30 @@
 package by.cniitu.virtualexhibition.web.controller.file;
 
+import by.cniitu.virtualexhibition.entity.file.FileType;
 import org.springframework.core.io.InputStreamResource;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 
 public class FileUtil {
+
+    private static String machine = null;
 
     private static String pathToObject;
     private static String pathToFile;
     private static String pathToImage;
-    private static String machine = null;
+    private static String externalIp;
+
+    public static Map<String, Integer> fileTypeToFileTypeId = new HashMap<>();
+
+    public static void setFileTypes(List<FileType> fileTypes){
+        for(FileType fileType: fileTypes){
+            fileTypeToFileTypeId.put(fileType.getName(), fileType.getId());
+        }
+    }
 
     public static void setMachine(String machine) throws IllegalStateException {
 
@@ -21,21 +35,28 @@ public class FileUtil {
             pathToObject = "/opt/unity_objects/";
             pathToFile = "/opt/unity_files/";
             pathToImage = "/opt/unity_images/";
+            externalIp = "10.65.65.20";
         } else if (machine.equals("bam")){
             pathToObject = "C:/Users/u108/Desktop/theExhibitions/files/unity_objects/";
             pathToFile = "C:/Users/u108/Desktop/theExhibitions/files/unity_files/";
             pathToImage = "C:/Users/u108/Desktop/theExhibitions/files/unity_images/";
+            externalIp = "192.168.0.64";
         } else if (machine.equals("cvg")){
             // TODO implement
             pathToObject = null;
             pathToFile = null;
             pathToImage = null;
+            externalIp = null;
         } else {
             throw new IllegalStateException("meaning of machine name is not implemented!");
         }
 
         FileUtil.machine = machine;
 
+    }
+
+    public static String getExternalIp() {
+        return externalIp;
     }
 
     /**

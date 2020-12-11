@@ -82,12 +82,16 @@ public class SocketServerService extends WebSocketServer {
     public void onMessage(WebSocket webSocket, String s) {
 
         SocketTo socketTo = JsonUtil.getSocketToByJson(s);
-        System.out.println("socketTo = " + socketTo);
+
+        System.out.println("socketTo = " + JsonUtil.getJsonString(socketTo));
+
         if(socketTo == null){
             // TODO is the message have an error disconnect the person forever
             webSocket.send("{\"message\": \"error\"}");
+
             return;
         }
+
 
         MessageBody messageBody = socketTo.getMessageBody();
 
@@ -114,7 +118,9 @@ public class SocketServerService extends WebSocketServer {
         }
         else {
             try {
-                webSocket.send(JsonUtil.getJsonString(new SocketTo(new Ping(PingPongAction.Pong))));
+                Ping ping = (Ping) messageBody;
+                // System.out.println("ping.getCount() = " + ping.getCount());
+                webSocket.send(JsonUtil.getJsonString(new SocketTo(new Ping(PingPongAction.Pong, ping.getCount()))));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -134,12 +140,15 @@ public class SocketServerService extends WebSocketServer {
         if (!UserUtil.userIdWithWebsocket.containsKey(coordinatesToServer.getUserId())) { // if user first time invoke move
             UserUtil.userIdWithWebsocket.put(coordinatesToServer.getUserId(), webSocket);
 
-            // sent to hem all other coordinates from this exhibition
-            for (CoordinatesToClient u : UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId).values()) {
-                try {
-                    webSocket.send(JsonUtil.getJsonString(new SocketTo(u)));
-                } catch (Exception e) {
-                    e.printStackTrace();
+            // send to him all other coordinates from this exhibition
+            Map<WebSocket, CoordinatesToClient> map = UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId);
+            if (map != null) {
+                for (CoordinatesToClient u : map.values()) {
+                    try {
+                        webSocket.send(JsonUtil.getJsonString(new SocketTo(u)));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

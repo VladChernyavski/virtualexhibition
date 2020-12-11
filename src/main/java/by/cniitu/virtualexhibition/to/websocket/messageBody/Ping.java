@@ -19,14 +19,18 @@ public class Ping extends MessageBody{
         pingPongActionMap.put(PingPongAction.Error, "error");
     }
 
-    public Ping(PingPongAction pingPongAction){
+    private Integer count;
+
+    public Ping(PingPongAction pingPongAction, Integer count){
         super(pingPongActionMap.get(pingPongAction));
+        this.count = count;
     }
 
     @Override
     public String toString() {
         return "{" +
                 "\"messageDesc\": \"" + getMessageDesc() + "\"" +
+                "\"count\": " + count +
                 '}';
     }
 

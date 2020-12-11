@@ -9,6 +9,7 @@ public class VirtualExhibitionApplication {
 
     public static void main(String[] args) {
 
+        // when we run the applicatiton on the server we use some args
         if(args.length > 0)
             FileUtil.setMachine("cniitu");
 

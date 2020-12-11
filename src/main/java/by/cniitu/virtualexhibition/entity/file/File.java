@@ -2,6 +2,7 @@ package by.cniitu.virtualexhibition.entity.file;
 
 import by.cniitu.virtualexhibition.entity.exhibition.ExhibitionObject;
 import by.cniitu.virtualexhibition.entity.exhibition.StandObject;
+import by.cniitu.virtualexhibition.entity.user.User;
 import by.cniitu.virtualexhibition.entity.user.UserAction;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
@@ -42,5 +43,9 @@ public class File {
 
     @OneToMany(mappedBy = "file")
     private List<UserAction> actions;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
 }
