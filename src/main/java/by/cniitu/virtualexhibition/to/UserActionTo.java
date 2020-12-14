@@ -9,7 +9,9 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserActionTo {
 
-    private Integer userActionId;
+    private String name;
+    private String email;
+    private String fileName;
     private String fileType;
     private String actionType;
     private String date;

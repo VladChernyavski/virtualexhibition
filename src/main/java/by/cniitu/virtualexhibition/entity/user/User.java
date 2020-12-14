@@ -1,5 +1,6 @@
 package by.cniitu.virtualexhibition.entity.user;
 
+import by.cniitu.virtualexhibition.entity.exhibition.Stand;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.Getter;
@@ -22,7 +23,7 @@ import java.util.Set;
 //@Data
 @Getter
 @Setter
-@JsonIgnoreProperties({ "password", "enabled", "username", "accountNonExpired",
+@JsonIgnoreProperties({ "password", "enabled", "username", "accountNonExpired", "stands",
         "credentialsNonExpired", "accountNonLocked", "authorities", "userActions", "subscriptions", "subscribers" })
 @ToString
 public class User implements UserDetails, Serializable {
@@ -53,6 +54,9 @@ public class User implements UserDetails, Serializable {
 
     @OneToMany(mappedBy = "user")
     private List<UserAction> userActions;
+
+    @OneToMany(mappedBy = "user")
+    private List<Stand> stands;
 
     @ManyToMany
     @JoinTable(name = "subscription_subscribers",
