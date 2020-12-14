@@ -54,10 +54,9 @@ public class UserActionController {
         return userActionService.getActionsByStandId(standId);
     }
 
-    @GetMapping("/statistics")
-    public ResponseEntity<Object> getStatistics(@RequestBody StatisticsRequest request) {
-        User user = userService.get(request.getUserId());
-
+    @GetMapping("/statistics/{id}")
+    public ResponseEntity<Object> getStatistics(@PathVariable int id) {
+        User user = userService.get(id);
         if (user == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"No such user\"}");
         }
