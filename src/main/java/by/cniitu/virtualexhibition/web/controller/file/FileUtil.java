@@ -43,9 +43,9 @@ public class FileUtil {
             externalIp = "192.168.0.64";
         } else if (machine.equals("cvg")){
             // TODO implement
-            pathToObject = null;
-            pathToFile = null;
-            pathToImage = null;
+            pathToObject = "C:\\Users\\u108\\Desktop\\EXHIBITION\\files\\unity_objects\\";
+            pathToFile = "C:\\Users\\u108\\Desktop\\EXHIBITION\\files\\unity_files\\";
+            pathToImage = "C:\\Users\\u108\\Desktop\\EXHIBITION\\files\\unity_images\\";
             externalIp = null;
         } else {
             throw new IllegalStateException("meaning of machine name is not implemented!");

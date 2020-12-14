@@ -1,6 +1,7 @@
 package by.cniitu.virtualexhibition.util;
 
 import by.cniitu.virtualexhibition.to.UserActionTo;
+import by.cniitu.virtualexhibition.web.controller.file.FileUtil;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -49,7 +50,7 @@ public class UserActionUtil {
         cell.setCellStyle(style);
         // Date
         cell = row.createCell(5, CellType.STRING);
-        cell.setCellValue("Date");
+        cell.setCellValue("Time");
         cell.setCellStyle(style);
 
 
@@ -73,18 +74,19 @@ public class UserActionUtil {
             // ActionType (E)
             cell = row.createCell(4, CellType.STRING);
             cell.setCellValue(action.getActionType());
-            // Date (F)
+            // Time (F)
             cell = row.createCell(5, CellType.STRING);
-            cell.setCellValue(action.getDate());
+            cell.setCellValue(action.getTime());
         }
 
         File tempFile = null;
-        FileOutputStream outFile = null;
         try {
-            //todo change tempFile
-            tempFile = File.createTempFile("temp", ".xls", new File("C:\\Users\\u108\\Desktop\\EXCEL"));
-//            tempFile = File.createTempFile("temp", "xls", new File("/opt/temp"));
-            outFile = new FileOutputStream(tempFile);
+            File dir = new File(FileUtil.getFilePath("file") + "//statistics");
+            if (!dir.exists()){
+                dir.mkdir();
+            }
+            tempFile = File.createTempFile("temp", ".xls", dir);
+            FileOutputStream outFile = new FileOutputStream(tempFile);
             workbook.write(outFile);
             outFile.close();
         } catch (IOException e){

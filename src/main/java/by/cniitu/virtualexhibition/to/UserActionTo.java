@@ -14,6 +14,6 @@ public class UserActionTo {
     private String fileName;
     private String fileType;
     private String actionType;
-    private String date;
+    private String time;
 
 }
