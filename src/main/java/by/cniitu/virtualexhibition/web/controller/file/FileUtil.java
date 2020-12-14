@@ -128,6 +128,21 @@ public class FileUtil {
         return new FileAndInputStreamResource(file, inputStreamResource);
     }
 
+    public static FileAndInputStreamResource getFileAndInputStreamResource(File file) {
+        InputStreamResource inputStreamResource = null;
+        while (inputStreamResource == null) {
+            try {
+                Thread.sleep(100);
+                if (file != null)
+                    inputStreamResource = new InputStreamResource(new FileInputStream(file));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return null;
+            }
+        }
+        return new FileAndInputStreamResource(file, inputStreamResource);
+    }
+
     // gets file and retries if it's needed <retryCount> times
     private static File getFile(String fileName){
         File file = null;

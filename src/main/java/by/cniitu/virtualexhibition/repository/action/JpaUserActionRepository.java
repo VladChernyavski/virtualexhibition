@@ -39,10 +39,13 @@ public interface JpaUserActionRepository extends JpaRepository<UserAction, Integ
     List<UserAction> getUserActionByExhibAndUserId(int exhibitionId, int userId);
 
     @Query(value = "SELECT ua.id, ua.user_id, ua.file_id, ua.action_type_id, ua.action_time FROM user_action ua " +
-            "JOIN file f ON f.type_id = ua.id " +
+            "JOIN file f ON f.id = ua.file_id " +
             "JOIN file_stand_object fso on f.id = fso.file_id " +
             "JOIN stand_object so on so.id = fso.stand_object_id " +
             "JOIN stand s on so.stand_id = s.id " +
             "WHERE s.id = ?1", nativeQuery = true)
     List<UserAction> getUserActionByStandId(int standId);
+
+    @Query(value = "SELECT s.id FROM stand s WHERE s.owner_id = ?1", nativeQuery = true)
+    List<Integer> getStandIdsByUser(int userId);
 }

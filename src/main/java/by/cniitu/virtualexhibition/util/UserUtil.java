@@ -47,7 +47,7 @@ public class UserUtil {
     }
 
     public static UserActionTo toUserActionTo(UserAction action){
-        return new UserActionTo(action.getId(), action.getFile().getFileType().getName(), action.getActionType().getName(),
+        return new UserActionTo(action.getUser().getFirstName(), action.getUser().getEmail(), action.getFile().getPath(), action.getFile().getFileType().getName(), action.getActionType().getName(),
                 action.getAction_time().toLocalDateTime().format(DateTimeFormatter.ofPattern("dd:MM:yyyy hh:mm")));
     }
 
