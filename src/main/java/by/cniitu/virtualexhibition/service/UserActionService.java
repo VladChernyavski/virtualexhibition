@@ -59,7 +59,8 @@ public class UserActionService {
 
         for (by.cniitu.virtualexhibition.entity.file.File file : files){
             Integer actions = userActionRepository.getActionsByFileId(file.getId());
-            fileActions.add(new FileActionTo(file.getPath(), actions));
+            int idx = file.getPath().lastIndexOf("/");
+            fileActions.add(new FileActionTo(file.getPath().substring(idx + 1), actions));
         }
         return FileActionUtil.saveFileActionToFile(fileActions);
     }
