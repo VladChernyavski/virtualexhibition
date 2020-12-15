@@ -120,12 +120,12 @@ public class FileController {
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteFile(@RequestParam int fileId, @RequestParam int userId){
         if(!fileService.isFileExists(fileId, userId)){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File with id " + fileId +" not found ");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Error. File with id: " + fileId + " not found\"}");
         }
         fileService.deleteFile(fileId);
         //add action to DB
         actionService.save(userId, fileId, ActionTypeUtil.actionType.get("deleted"));
-        return ResponseEntity.ok("Delete file with id: " + fileId);
+        return ResponseEntity.ok("{\"message\": \"Ok. Delete file with id: " + fileId + " \"}");
     }
 
     // TODO write an endpoint that says to client the link to download the file from id

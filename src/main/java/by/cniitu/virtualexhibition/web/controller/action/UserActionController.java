@@ -37,7 +37,7 @@ public class UserActionController {
         String actionType = actionRequest.getActionType();
 //        !!!! save action to DB
         userActionService.save(userId, fileId, ActionTypeUtil.actionType.get(actionType));
-        return ResponseEntity.ok("Action saved");
+        return ResponseEntity.ok("{\"message\": \"Ok. Action saved\"}");
     }
 
     //TODO test controller

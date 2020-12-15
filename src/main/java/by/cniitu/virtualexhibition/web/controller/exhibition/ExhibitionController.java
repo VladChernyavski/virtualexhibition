@@ -25,7 +25,7 @@ public class ExhibitionController {
     public ResponseEntity<Object> getExhibition(@PathVariable int id){
         ExhibitionTo exhibition = exhibitionService.getExhibitionJson(id);
         if(Objects.isNull(exhibition)){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No such exhibition");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Error. No such exhibition\"}");
         }
         return ResponseEntity.ok(exhibition);
     }

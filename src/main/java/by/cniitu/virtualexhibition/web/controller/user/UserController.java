@@ -38,7 +38,7 @@ public class UserController {
         System.out.println("noConfirmUser = " + noConfirmUser);
         if (Objects.isNull(noConfirmUser)) {
             System.out.println("BAD_REQUEST");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Error\"}");
         }
         if (!ValidationUtil.isUserValid(noConfirmUser)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"User is not valid\"}");
