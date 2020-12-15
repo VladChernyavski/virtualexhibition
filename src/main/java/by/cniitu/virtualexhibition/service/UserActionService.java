@@ -3,7 +3,10 @@ package by.cniitu.virtualexhibition.service;
 import by.cniitu.virtualexhibition.entity.user.User;
 import by.cniitu.virtualexhibition.entity.user.UserAction;
 import by.cniitu.virtualexhibition.repository.action.JpaUserActionRepository;
+import by.cniitu.virtualexhibition.repository.file.JpaFileRepository;
+import by.cniitu.virtualexhibition.to.FileActionTo;
 import by.cniitu.virtualexhibition.to.UserActionTo;
+import by.cniitu.virtualexhibition.util.FileActionUtil;
 import by.cniitu.virtualexhibition.util.UserActionUtil;
 import by.cniitu.virtualexhibition.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,9 @@ public class UserActionService {
 
     @Autowired
     private JpaUserActionRepository userActionRepository;
+
+    @Autowired
+    private JpaFileRepository fileRepository;
 
     public void save(int userId, int fileId, int actionTypeId){
         userActionRepository.saveUserActionByIds(userId, fileId, actionTypeId);
@@ -47,6 +53,15 @@ public class UserActionService {
         return UserActionUtil.saveActionsToFile(allUserActions);
     }
 
+    public File getFileAction(int userId){
+        List<FileActionTo> fileActions = new ArrayList<>();
+        List<by.cniitu.virtualexhibition.entity.file.File> files = fileRepository.getFilesByUserId(userId);
 
+        for (by.cniitu.virtualexhibition.entity.file.File file : files){
+            Integer actions = userActionRepository.getActionsByFileId(file.getId());
+            fileActions.add(new FileActionTo(file.getPath(), actions));
+        }
+        return FileActionUtil.saveFileActionToFile(fileActions);
+    }
 
 }

@@ -48,4 +48,7 @@ public interface JpaUserActionRepository extends JpaRepository<UserAction, Integ
 
     @Query(value = "SELECT s.id FROM stand s WHERE s.owner_id = ?1", nativeQuery = true)
     List<Integer> getStandIdsByUser(int userId);
+
+    @Query(value = "SELECT COUNT(*) FROM user_action WHERE file_id = ?1", nativeQuery = true)
+    Integer getActionsByFileId(int fileId);
 }

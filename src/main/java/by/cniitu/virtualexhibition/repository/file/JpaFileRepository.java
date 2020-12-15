@@ -29,4 +29,7 @@ public interface JpaFileRepository extends JpaRepository<File, Integer> {
     @Query(value = "DELETE FROM file_stand_object fso WHERE fso.file_id = ?1 ", nativeQuery = true)
     @Transactional
     void delete(int fileId);
+
+    @Query("SELECT f FROM File f WHERE f.user.id = ?1")
+    List<File> getFilesByUserId(int userId);
 }

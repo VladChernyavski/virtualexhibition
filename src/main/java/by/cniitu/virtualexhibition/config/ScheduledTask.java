@@ -15,16 +15,22 @@ public class ScheduledTask {
     // todo change time
     @Scheduled(fixedRate = 60000)
     public void deleteTempXlsFiles(){
-        String directory = FileUtil.getFilePath("file") + "//statistics";
+        String directory = FileUtil.getFilePath("file") + "//temp";
         File file = new File(directory);
-        if(file.exists() && file.isDirectory()) {
-            for (File f : Objects.requireNonNull(file.listFiles())) {
-                if (f.isFile()) {
+
+        deleteFiles(file);
+    }
+
+    private void deleteFiles(File file){
+        if(file.exists() && file.isDirectory()){
+            for (File f : Objects.requireNonNull(file.listFiles())){
+                if(f.isFile()){
                     System.out.println(f.getAbsolutePath() + " is deleted: " + f.delete());
+                }
+                if (f.isDirectory()){
+                    deleteFiles(f);
                 }
             }
         }
-
     }
-
 }

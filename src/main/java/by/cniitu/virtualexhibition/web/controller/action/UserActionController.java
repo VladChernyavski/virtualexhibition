@@ -79,4 +79,29 @@ public class UserActionController {
                 .body(resource);
     }
 
+    @GetMapping("/fileactions/{id}")
+    public ResponseEntity<Object> getFileAction(@PathVariable int id){
+        User user = userService.get(id);
+        if (user == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"No such user\"}");
+        }
+        if(!user.getRole().getName().equalsIgnoreCase("role_vendor")){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"User must have to role vendor\"}");
+        }
+
+        FileAndInputStreamResource fileAndInputStreamResource = getFileAndInputStreamResource(userActionService.getFileAction(user.getId()));
+        if (fileAndInputStreamResource == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"fileAndInputStreamResource == null\"}");
+        }
+
+        File file = fileAndInputStreamResource.getFile();
+        InputStreamResource resource = fileAndInputStreamResource.getInputStreamResource();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=actionswithfile.xlsx")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentLength(file.length())
+                .body(resource);
+    }
+
 }

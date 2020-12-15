@@ -81,11 +81,11 @@ public class UserActionUtil {
 
         File tempFile = null;
         try {
-            File dir = new File(FileUtil.getFilePath("file") + "//statistics");
+            File dir = new File(FileUtil.getFilePath("file") + "//temp//statistics");
             if (!dir.exists()){
-                dir.mkdir();
+                dir.mkdirs();
             }
-            tempFile = File.createTempFile("temp", ".xls", dir);
+            tempFile = File.createTempFile("temp", ".xlsx", dir);
             FileOutputStream outFile = new FileOutputStream(tempFile);
             workbook.write(outFile);
             outFile.close();
