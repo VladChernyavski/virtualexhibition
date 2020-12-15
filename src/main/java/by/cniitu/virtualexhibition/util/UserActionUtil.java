@@ -2,13 +2,13 @@ package by.cniitu.virtualexhibition.util;
 
 import by.cniitu.virtualexhibition.to.UserActionTo;
 import by.cniitu.virtualexhibition.web.controller.file.FileUtil;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,14 +18,14 @@ import java.util.List;
 public class UserActionUtil {
 
     public static File saveActionsToFile(List<UserActionTo> userActions){
-        HSSFWorkbook workbook = new HSSFWorkbook();
-        HSSFSheet sheet = workbook.createSheet("User Action Sheets");
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("User Action Sheets");
 
         int rownum = 0;
         Cell cell;
         Row row;
 
-        HSSFCellStyle style = createStyleForTitle(workbook);
+        XSSFCellStyle style = createStyleForTitle(workbook);
         row = sheet.createRow(rownum);
 
         // Name
@@ -96,10 +96,10 @@ public class UserActionUtil {
         return tempFile;
     }
 
-    private static HSSFCellStyle createStyleForTitle(HSSFWorkbook workbook) {
-        HSSFFont font = workbook.createFont();
+    private static XSSFCellStyle createStyleForTitle(XSSFWorkbook workbook) {
+        XSSFFont font = workbook.createFont();
         font.setBold(true);
-        HSSFCellStyle style = workbook.createCellStyle();
+        XSSFCellStyle style = workbook.createCellStyle();
         style.setFont(font);
         return style;
     }

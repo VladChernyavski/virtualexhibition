@@ -73,7 +73,7 @@ public class UserActionController {
         InputStreamResource resource = fileAndInputStreamResource.getInputStreamResource();
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=statistics.xls")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=statistics.xlsx")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .contentLength(file.length())
                 .body(resource);
