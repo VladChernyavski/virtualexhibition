@@ -67,4 +67,11 @@ public class StandObject {
     @Column(name = "image")
     private Boolean image;
 
+    @ManyToOne
+    @JoinColumn(name = "video_id")
+    private File video;
+
+    @Column(name = "video")
+    private Boolean haveVideo;
+
 }

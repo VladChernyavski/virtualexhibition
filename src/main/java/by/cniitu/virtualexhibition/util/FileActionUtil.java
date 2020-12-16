@@ -83,7 +83,7 @@ public class FileActionUtil {
 
             XDDFChartData data = chart.createData(ChartTypes.BAR, bottomAxis, leftAxis);
             XDDFChartData.Series series1 = data.addSeries(date, high);
-            series1.setTitle("high", new CellReference(sheet.getSheetName(), 0, 1, true, true));
+            series1.setTitle("action", new CellReference(sheet.getSheetName(), 0, 1, true, true));
             chart.plot(data);
 
             XDDFBarChartData bar = (XDDFBarChartData) data;

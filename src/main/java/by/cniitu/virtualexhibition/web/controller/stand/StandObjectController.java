@@ -28,4 +28,13 @@ public class StandObjectController {
         return ResponseEntity.ok("{\"message\": \"fine\"}");
     }
 
+    @PostMapping("/video/{standObjectId}/{videoId}")
+    public ResponseEntity<Object> uploadAndSetVideo(@PathVariable int standObjectId, @PathVariable int videoId){
+        File file = jpaFileRepository.getFileById(videoId);
+        StandObject standObject = jpaStandObjectRepository.getOne(standObjectId);
+        standObject.setVideo(file);
+        jpaStandObjectRepository.save(standObject);
+        return ResponseEntity.ok("{\"message\": \"fine\"}");
+    }
+
 }

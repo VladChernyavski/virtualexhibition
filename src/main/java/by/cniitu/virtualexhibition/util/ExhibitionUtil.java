@@ -61,6 +61,8 @@ public class ExhibitionUtil {
                 standObjectTo.setObjectModel(standObject.getObjectModel());
                 standObjectTo.setTexture(standObject.getTexture().getPath());
                 standObjectTo.setImage(standObject.getImage());
+                standObjectTo.setVideo(standObject.getVideo().getPath());
+                standObjectTo.setHaveVideo(standObject.getHaveVideo());
                 standObjectTos.add(standObjectTo);
             }
 

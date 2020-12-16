@@ -16,5 +16,7 @@ public class StandObjectTo {
     private ObjectModel objectModel;
     private String texture;
     private Boolean image;
+    private String video;
+    private Boolean haveVideo;
 
 }

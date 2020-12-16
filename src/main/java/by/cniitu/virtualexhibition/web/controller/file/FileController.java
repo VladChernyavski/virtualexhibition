@@ -138,7 +138,8 @@ public class FileController {
     // TODO I will do it
 
     /**
-     * @param type can be "image", "file" or "bundle". Nothing else can be uploaded yet
+     * @param type can be "image", "video", "file" or "bundle". Nothing else can be uploaded yet.
+     *             runtimePlatform can be only with "bundle"
      */
     @PostMapping("/api/upload")
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file,
