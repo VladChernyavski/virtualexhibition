@@ -66,8 +66,13 @@ public class UserActionService {
 
         for (by.cniitu.virtualexhibition.entity.file.File file : files){
             Integer actions = userActionRepository.getActionsByFileId(file.getId());
-            int idx = file.getPath().lastIndexOf("/");
-            fileActions.add(new FileActionTo(file.getPath().substring(idx + 1), actions));
+            String fileName = file.getPath();
+            int idx = fileName.lastIndexOf("/");
+            int idx2 = fileName.lastIndexOf(".");
+            if(fileName.contains("~~~")){
+                fileName = fileName.substring(idx + 1, idx2 - 13).concat(fileName.substring(idx2));
+            }
+            fileActions.add(new FileActionTo(fileName, actions));
         }
         return FileActionUtil.saveFileActionToFile(fileActions);
     }
