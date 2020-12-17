@@ -7,6 +7,7 @@ import by.cniitu.virtualexhibition.repository.file.JpaFileRepository;
 import by.cniitu.virtualexhibition.to.FileActionTo;
 import by.cniitu.virtualexhibition.to.UserActionTo;
 import by.cniitu.virtualexhibition.util.FileActionUtil;
+import by.cniitu.virtualexhibition.util.PdfWriterUtil;
 import by.cniitu.virtualexhibition.util.UserActionUtil;
 import by.cniitu.virtualexhibition.util.UserUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,13 +45,19 @@ public class UserActionService {
                 .collect(Collectors.toList());
     }
 
-    public File getStatistics(User user){
+    public File getStatistics(User user, String type){
         List<UserActionTo> allUserActions = new ArrayList<>();
 
         for(Integer i : userActionRepository.getStandIdsByUser(user.getId())){
             allUserActions.addAll(getActionsByStandId(i));
         }
-        return UserActionUtil.saveActionsToFile(allUserActions);
+        if(type.equalsIgnoreCase("excel")){
+            return UserActionUtil.saveActionsToFile(allUserActions);
+        }
+        if (type.equalsIgnoreCase("pdf")){
+            return PdfWriterUtil.writeActionToPdf(allUserActions);
+        }
+        return null;
     }
 
     public File getFileAction(int userId){

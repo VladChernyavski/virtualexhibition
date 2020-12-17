@@ -64,4 +64,13 @@ public class Stand {
     @OneToMany(mappedBy = "stand")
     private List<StandObject> standObjects;
 
+    public Stand(){
+
+    }
+
+    public Stand(String name, User user){
+        this.name = name;
+        this.user = user;
+    }
+
 }

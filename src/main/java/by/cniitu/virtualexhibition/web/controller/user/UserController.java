@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -114,6 +115,20 @@ public class UserController {
         user.setPassword(newPassword);
         MailThreadExecutorUtil.execute(() -> userService.changeUserPassword(user, newPassword));
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * @param type - can be only "name", "surname", "email", "nick"
+     * @param query - search query
+     */
+    @CrossOrigin("*")
+    @GetMapping("/users")
+    public ResponseEntity<Object> getUserByType(@RequestParam String type, @RequestParam String query) {
+        List<User> users = userService.getUserByType(type, query);
+        if (users == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Wrong type\"}");
+        }
+        return ResponseEntity.ok(users);
     }
 
     private User getUserByClaims(String token, String method) {

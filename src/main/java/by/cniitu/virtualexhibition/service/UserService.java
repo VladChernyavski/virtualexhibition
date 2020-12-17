@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
+import java.util.List;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -104,6 +105,22 @@ public class UserService implements UserDetailsService {
             System.out.println(e.getMessage());
         }
         update(user);
+    }
+
+    public List<User> getUserByType(String type, String query){
+        if(type.equalsIgnoreCase("name")){
+            return userRepository.getUserByName(query);
+        }
+        if(type.equalsIgnoreCase("surname")){
+            return userRepository.getUserBySurname(query);
+        }
+        if(type.equalsIgnoreCase("email")){
+            return userRepository.getUserByEmail(query);
+        }
+        if(type.equalsIgnoreCase("nick")){
+            return userRepository.getUserByNickName(query);
+        }
+        return null;
     }
 
     private User prepareAndSave(User user) {

@@ -18,4 +18,7 @@ public interface JpaStandRepository extends JpaRepository<Stand, Integer> {
     // List<stand_id_name_and_exhibit_name> getAllByOwnerId(int id);
     List<Object[]> findAllByOwnerIdAndExhibitId(int id, int exhibitId);
 
+    @Query(value = "SELECT new Stand(s.name, s.user) FROM Stand s WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', ?1, '%'))")
+    List<Stand> getStandsByName(String name);
+
 }

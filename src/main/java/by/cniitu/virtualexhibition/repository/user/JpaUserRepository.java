@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Repository
 @Transactional(readOnly = true)
 public interface JpaUserRepository extends JpaRepository<User, Integer> {
@@ -26,4 +28,16 @@ public interface JpaUserRepository extends JpaRepository<User, Integer> {
     @Query(value = "SELECT EXISTS(SELECT 1 FROM subscription_subscribers " +
             "WHERE user_id = ?1 AND subscriber_id = ?2)", nativeQuery = true)
     Boolean isUserSubscribed(int userId, int subscriberId);
+
+    @Query(nativeQuery = true, value = "SELECT * FROM user_table WHERE LOWER(nickname) LIKE LOWER(CONCAT('%', ?1, '%')) ")
+    List<User> getUserByNickName(String nickName);
+
+    @Query(nativeQuery = true, value = "SELECT * FROM user_table WHERE LOWER(first_name) LIKE LOWER(CONCAT('%', ?1, '%'))")
+    List<User> getUserByName(String name);
+
+    @Query(nativeQuery = true, value = "SELECT * FROM user_table WHERE LOWER(last_name) LIKE LOWER(CONCAT('%', ?1, '%'))")
+    List<User> getUserBySurname(String surname);
+
+    @Query(nativeQuery = true, value = "SELECT * FROM user_table WHERE LOWER(email) LIKE LOWER(CONCAT('%', ?1, '%'))")
+    List<User> getUserByEmail(String email);
 }

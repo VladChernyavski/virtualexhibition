@@ -35,4 +35,8 @@ public class ExhibitionService {
         return exhibitionRepository.findAll();
     }
 
+    public List<Exhibition> getExhibitionsByName(String name){
+        return exhibitionRepository.getExhibitionsByName(name);
+    }
+
 }

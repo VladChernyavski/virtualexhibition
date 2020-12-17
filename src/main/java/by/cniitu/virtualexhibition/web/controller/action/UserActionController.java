@@ -54,8 +54,11 @@ public class UserActionController {
         return userActionService.getActionsByStandId(standId);
     }
 
+    /**
+     * @param type - can be only "pdf", "excel"
+     */
     @GetMapping("/statistics/{id}")
-    public ResponseEntity<Object> getStatistics(@PathVariable int id) {
+    public ResponseEntity<Object> getStatistics(@PathVariable int id, @RequestParam String type) {
         User user = userService.get(id);
         if (user == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"No such user\"}");
@@ -64,16 +67,23 @@ public class UserActionController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"User must have to role vendor\"}");
         }
 
-        FileAndInputStreamResource fileAndInputStreamResource = getFileAndInputStreamResource(userActionService.getStatistics(user));
+        File statistics = userActionService.getStatistics(user, type);
+
+        if(statistics == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"statistics == null\"}");
+        }
+
+        FileAndInputStreamResource fileAndInputStreamResource = getFileAndInputStreamResource(statistics);
         if (fileAndInputStreamResource == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"fileAndInputStreamResource == null\"}");
         }
-
         File file = fileAndInputStreamResource.getFile();
         InputStreamResource resource = fileAndInputStreamResource.getInputStreamResource();
 
+        String fileName = type.equalsIgnoreCase("excel") ? "statistics.xlsx" : "statistics.pdf";
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=statistics.xlsx")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .contentLength(file.length())
                 .body(resource);

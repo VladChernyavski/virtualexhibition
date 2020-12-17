@@ -6,10 +6,7 @@ import by.cniitu.virtualexhibition.to.ExhibitionTo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +31,12 @@ public class ExhibitionController {
     @GetMapping(value = "/exhibitions")
     public List<Exhibition> getListExhibition(){
         return exhibitionService.getExhibitions();
+    }
+
+    @GetMapping(value = "/exhibitions/name")
+    public ResponseEntity<Object> getExhibitionsByName(@RequestParam String name){
+        List<Exhibition> exhibitionsByName = exhibitionService.getExhibitionsByName(name);
+        return ResponseEntity.ok(exhibitionsByName);
     }
 
 }

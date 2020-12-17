@@ -46,8 +46,15 @@ public class UserUtil {
         return user;
     }
 
+    // fileName contains "~~~1336345657" for unique name. User need file name without "~~~1336345657"
     public static UserActionTo toUserActionTo(UserAction action){
-        return new UserActionTo(action.getUser().getFirstName(), action.getUser().getEmail(), action.getFile().getPath(), action.getFile().getFileType().getName(), action.getActionType().getName(),
+        String fileName = action.getFile().getPath();
+        int idx = fileName.lastIndexOf("/");
+        int idx2 = fileName.lastIndexOf(".");
+        if(fileName.contains("~~~")){
+            fileName = fileName.substring(idx + 1, idx2 - 13).concat(fileName.substring(idx2));
+        }
+        return new UserActionTo(action.getUser().getFirstName(), action.getUser().getEmail(), fileName, action.getFile().getFileType().getName(), action.getActionType().getName(),
                 action.getAction_time().toLocalDateTime().format(DateTimeFormatter.ofPattern("dd:MM:yyyy hh:mm")));
     }
 
