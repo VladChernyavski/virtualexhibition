@@ -92,7 +92,6 @@ public class SocketServerService extends WebSocketServer {
             return;
         }
 
-
         MessageBody messageBody = socketTo.getMessageBody();
 
         if (socketTo.getMessageType() == 0){ // user motion
@@ -136,35 +135,25 @@ public class SocketServerService extends WebSocketServer {
     private void sendMove(WebSocket webSocket, MessageBody messageBody) {
         CoordinatesToServer coordinatesToServer = (CoordinatesToServer)messageBody;
         int exhibitionId = coordinatesToServer.getExhibitId();
-
-        if (!UserUtil.userIdWithWebsocket.containsKey(coordinatesToServer.getUserId())) { // if user first time invoke move
-            UserUtil.userIdWithWebsocket.put(coordinatesToServer.getUserId(), webSocket);
-
-            // send to him all other coordinates from this exhibition
-            Map<WebSocket, CoordinatesToClient> map = UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId);
-            if (map != null) {
-                for (CoordinatesToClient u : map.values()) {
-                    try {
-                        webSocket.send(JsonUtil.getJsonString(new SocketTo(u)));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+        CoordinatesToClient coordinatesToClient = new CoordinatesToClient(coordinatesToServer);
+        Map<WebSocket, CoordinatesToClient> exhibitionMap = UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId);
+        if(exhibitionMap == null){
+            exhibitionMap = new HashMap<>();
+        }
+        exhibitionMap.put(webSocket, coordinatesToClient);
+        Integer userId = coordinatesToServer.getUserId();
+        if (!UserUtil.userIdWithWebsocket.containsKey(userId)) { // if user first time invoke move
+            UserUtil.userIdWithWebsocket.put(userId, webSocket);
+            for (CoordinatesToClient u : exhibitionMap.values()) {
+                try {
+                    webSocket.send(JsonUtil.getJsonString(new SocketTo(u)));
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }
-
-        if (UserUtil.exhibitionWithWebsocketAndUser.containsKey(exhibitionId)) {
-            UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId).put(webSocket, coordinatesToServer);
-        } else {
-            UserUtil.exhibitionWithWebsocketAndUser.put(exhibitionId,
-                    new ConcurrentHashMap<WebSocket, CoordinatesToClient>() {{
-                put(webSocket, coordinatesToServer);
-            }});
-        }
-
         try {
-            broadcast(JsonUtil.getJsonString(new SocketTo(coordinatesToServer)),
-                    UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId).keySet());
+            broadcast(JsonUtil.getJsonString(new SocketTo(coordinatesToClient)), exhibitionMap.keySet());
         } catch (Exception ex){
             ex.printStackTrace();
         }
