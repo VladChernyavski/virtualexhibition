@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
+@CrossOrigin("*")
 public class UserController {
 
     @Autowired
@@ -30,31 +31,24 @@ public class UserController {
     @Autowired
     private JwtProvider jwtProvider;
 
-    @CrossOrigin("*")
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody RegisterRequest request) {
-        System.out.println("request.getToken() = " + request.getToken());
         User noConfirmUser = getUserByClaims(request.getToken(), "register");
-        System.out.println("noConfirmUser = " + noConfirmUser);
         if (Objects.isNull(noConfirmUser)) {
-            System.out.println("BAD_REQUEST");
+            System.out.println("{\"message\": \"Error. User = null\"}");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         if (!ValidationUtil.isUserValid(noConfirmUser)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"User is not valid\"}");
         }
-        System.out.println("register 1");
         if (userService.isEmailExist(noConfirmUser.getEmail())) {
             System.out.println("BAD_REQUEST User with such email exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"User with such email exists\"}");
         }
-        System.out.println("register 2");
         MailThreadExecutorUtil.execute(() -> userService.confirmUserEmail(noConfirmUser));
-        System.out.println("register 3");
         return ResponseEntity.ok("{\"message\": \"Ok. Check your email please\"}");
     }
 
-    @CrossOrigin("*")
     @GetMapping("/activate/{code}")
     public ResponseEntity<String> activate(@PathVariable String code) {
         // TODO cancel it
@@ -79,7 +73,6 @@ public class UserController {
         return new AuthResponse(token);
     }
 
-    @CrossOrigin("*")
     @PostMapping("/auth")
     public ResponseEntity<Object> auth(@RequestBody AuthRequest request) {
         System.out.println("[UMKA] request.getToken() = " + request.getToken());
@@ -89,11 +82,9 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("{\"message\": \"error\"}");
         }
         Integer id = user.getId();
-
         if (UserUtil.userIdWithWebsocket.containsKey(id)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"User with such email already logged in\"}");
         }
-
         System.out.println("[UMKA] start response token generation " + user);
         String token = jwtProvider.generateToken(user.getEmail(), user.getPassword());
         System.out.println("[UMKA] response token generated " + token);
@@ -103,7 +94,6 @@ public class UserController {
         return ResponseEntity.ok(new AuthResponse(id, token, nickName, role));
     }
 
-    @CrossOrigin("*")
     @PostMapping("/changepassword")
     public ResponseEntity<Object> changePassword(@RequestBody AuthRequest request) {
         User user = getUserByClaims(request.getToken(), "changepassword");
