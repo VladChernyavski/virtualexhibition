@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class ActionTypeUtil {
 
+    // TODO make an enum
     public static final Map<String, Integer> actionType = new HashMap<String, Integer>(){{
        put("downloaded", 1);
        put("seen", 2);
