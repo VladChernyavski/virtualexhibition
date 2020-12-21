@@ -7,6 +7,7 @@ import by.cniitu.virtualexhibition.entity.user.UserAction;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @JsonIgnoreProperties({ "standObjects" })
 @Getter
 @Setter
+@ToString
 public class File {
 
     @Id
