@@ -37,6 +37,7 @@ public class FileController {
 
     /**
      * download file when we know fileName and type
+     *
      * @param type can be "image" or "file". Nothing else can be uploaded yet
      */
     @GetMapping("/api/download")
@@ -45,6 +46,7 @@ public class FileController {
         System.out.println("fileName = " + fileName);
         System.out.println("type = " + type);
         FileAndInputStreamResource fileAndInputStreamResource = FileUtil.getFileAndInputStreamResource(fileName, type);
+        fileService.updateFileUseTime(fileName);
         return getInputStreamResourceResponseEntity(fileAndInputStreamResource);
     }
 
@@ -64,18 +66,19 @@ public class FileController {
 
     /**
      * @param userId to be used in statistics
-     * TODO use it only when user clicks the file
+     *               TODO use it only when user clicks the file
      */
     @GetMapping("/download")
     public ResponseEntity<InputStreamResource> downloadFile(@RequestParam int fileId, @RequestParam int userId) {
         by.cniitu.virtualexhibition.entity.file.File fileFromDB = fileService.getFile(fileId);
 
-        if(Objects.isNull(fileFromDB)){
+        if (Objects.isNull(fileFromDB)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
+        String fileType = fileFromDB.getFileType().getName();
         FileAndInputStreamResource fileAndInputStreamResource
                 = FileUtil.getFileAndInputStreamResource(fileFromDB.getPath(),
-                fileFromDB.getFileType().getName().equals("image")? "image": "file");
+                fileType.equals("image") ? "image" : fileType.equals("video") ? "video" : "file");
 
         if (fileAndInputStreamResource == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
@@ -83,6 +86,7 @@ public class FileController {
         File file = fileAndInputStreamResource.getFile();
         InputStreamResource resource = fileAndInputStreamResource.getInputStreamResource();
 
+        fileService.updateFileUseTime(fileFromDB.getPath());
         //save action to DB
         actionService.save(userId, fileFromDB.getId(), ActionTypeUtil.actionType.get("downloaded"));
         return ResponseEntity.ok()
@@ -94,32 +98,33 @@ public class FileController {
 
     static private Map<String, String> runtimePlatformMap = new HashMap<>();
 
-    static{
+    static {
         runtimePlatformMap.put("WindowsPlayer", "windows");
         runtimePlatformMap.put("WindowsEditor", "windows");
     }
 
     @GetMapping("/download_asset")
     public ResponseEntity<InputStreamResource> downloadAsset(@RequestParam("fileName") String fileName,
-                                                            @RequestParam("runtimePlatform") String runtimePlatform) {
+                                                             @RequestParam("runtimePlatform") String runtimePlatform) {
 
         String os = runtimePlatformMap.get(runtimePlatform);
-        if(os != null)
+        if (os != null)
             runtimePlatform = os;
 
         FileAndInputStreamResource fileAndInputStreamResource = FileUtil.getFileAndInputStreamResourceAsset(fileName, runtimePlatform);
 
+        fileService.updateBundleUseTime(fileName);
         return getInputStreamResourceResponseEntity(fileAndInputStreamResource);
     }
 
     @GetMapping("/standobject/{id}")
-    public List<by.cniitu.virtualexhibition.entity.file.File> getAllFilesByStandObjectId(@PathVariable int id){
+    public List<by.cniitu.virtualexhibition.entity.file.File> getAllFilesByStandObjectId(@PathVariable int id) {
         return fileService.getFilesByStandObjectId(id);
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteFile(@RequestParam int fileId, @RequestParam int userId){
-        if(!fileService.isFileExists(fileId, userId)){
+    public ResponseEntity<String> deleteFile(@RequestParam int fileId, @RequestParam int userId) {
+        if (!fileService.isFileExists(fileId, userId)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Error. File with id: " + fileId + " not found\"}");
         }
         fileService.deleteFile(fileId);
@@ -146,22 +151,22 @@ public class FileController {
                                          @RequestParam("lastModified") String lastModified,
                                          @RequestParam("type") String type,
                                          @RequestParam("userId") Integer userId,
-                                         @RequestParam("runtimePlatform") String runtimePlatform) throws Exception{
+                                         @RequestParam("runtimePlatform") String runtimePlatform) throws Exception {
         String originalFilename = file.getOriginalFilename();
         System.out.println("originalFilename = " + originalFilename);
         User user = userService.get(userId);
-        if(user == null)
+        if (user == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"no such user\"}");
-        if(originalFilename == null)
+        if (originalFilename == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"the original file name is null\"}");
         FileNameAndType fileNameAndType = FileUtil.getFileNameAndType(originalFilename);
         String dirName = "user_" + userId + "/";
         String filePath = FileUtil.getFilePath(type);
-        if(filePath == null)
+        if (filePath == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"type error\"}");
         String dirPath = filePath + dirName;
         File dir = new File(dirPath);
-        if(!dir.exists()){
+        if (!dir.exists()) {
             System.out.println(dir.mkdir());
         }
         String newFilename = dirName + fileNameAndType.name + "~~~" + lastModified + "." + fileNameAndType.type;
