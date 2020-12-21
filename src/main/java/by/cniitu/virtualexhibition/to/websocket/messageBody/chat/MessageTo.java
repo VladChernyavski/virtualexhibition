@@ -14,18 +14,18 @@ public class MessageTo extends MessageBody {
     private Integer userId;
     private String chatId;
     private String text;
-    private List<Integer> fileIds;
+    private List<FileWithSizeTo> filesWithSize;
 
-    public MessageTo(Integer userId, String chatId, String text, List<Integer> fileIds){
+    public MessageTo(Integer userId, String chatId, String text, List<FileWithSizeTo> fileIds){
         super("new message");
         this.userId = userId;
         this.chatId = chatId;
         this.text = text;
-        this.fileIds = new LinkedList<>(fileIds);
+        this.filesWithSize = new LinkedList<>(fileIds);
     }
 
     public MessageTo(MessageTo messageTo){
-        this(messageTo.userId, messageTo.chatId, messageTo.text, messageTo.fileIds);
+        this(messageTo.userId, messageTo.chatId, messageTo.text, messageTo.filesWithSize);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class MessageTo extends MessageBody {
                 ", \"userId\": " + userId +
                 ", \"chatId\": \"" + chatId + "\"" +
                 ", \"text\": \"" + text + "\"" +
-                ", \"fileIds\": " + fileIds +
+                ", \"fileIds\": " + filesWithSize +
                 '}';
     }
 
