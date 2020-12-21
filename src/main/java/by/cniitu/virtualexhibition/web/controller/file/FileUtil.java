@@ -45,7 +45,6 @@ public class FileUtil {
             pathToVideo = "C:/Users/u108/Desktop/theExhibitions/files/unity_video/";
             externalIp = "192.168.0.64";
         } else if (machine.equals("cvg")) {
-            // TODO implement
             pathToObject = "C:\\Users\\u108\\Desktop\\EXHIBITION\\files\\unity_objects\\";
             pathToFile = "C:\\Users\\u108\\Desktop\\EXHIBITION\\files\\unity_files\\";
             pathToImage = "C:\\Users\\u108\\Desktop\\EXHIBITION\\files\\unity_images\\";
@@ -64,7 +63,7 @@ public class FileUtil {
     }
 
     /**
-     * @param type can be "image", "file" or "bundle". Nothing else can be uploaded yet
+     * @param type can be "image", "file", "video" or "bundle". Nothing else can be uploaded yet
      */
     public static String getFilePath(String type) {
         if (type.equals("image"))
@@ -81,20 +80,6 @@ public class FileUtil {
     public static FileNameAndType getFileNameAndType(String path) {
         int indexOfPoint = path.lastIndexOf('.');
         return new FileNameAndType(path.substring(0, indexOfPoint), path.substring(indexOfPoint + 1));
-    }
-
-
-    /**
-     * TODO use it
-     *
-     * @param type can be "image" or "file". Nothing else can be uploaded yet
-     */
-    public static boolean exist(String fileName, String type) {
-        FileAndInputStreamResource fileAndInputStreamResource = getFileAndInputStreamResource(fileName, type);
-
-        if (fileAndInputStreamResource == null)
-            return false;
-        return true;
     }
 
     /**

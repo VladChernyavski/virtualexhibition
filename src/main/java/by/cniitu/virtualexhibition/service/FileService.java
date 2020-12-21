@@ -47,4 +47,20 @@ public class FileService {
         return fileRepository.save(file);
     }
 
+    public void updateBundleUseTime(String fileName){
+        fileRepository.updateBundleUseTime(fileName);
+    }
+
+    public void updateFileUseTime(String fileName){
+        fileRepository.updateFileUseTime(fileName);
+    }
+
+    //TODO DELETE OLD FILES AND BUNDLES (which have no links)
+    public void deleteOldFiles(){
+        List<Integer> oldFiles = fileRepository.getOldFiles();
+        List<Integer> oldBundles = fileRepository.getOldBundles();
+        System.out.println("Id old files -> " + oldFiles);
+        System.out.println("Id old bundles -> " + oldBundles);
+    }
+
 }
