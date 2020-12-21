@@ -45,7 +45,6 @@ public class FileUtil {
             pathToVideo = "C:/Users/u108/Desktop/theExhibitions/files/unity_video/";
             externalIp = "192.168.0.64";
         } else if (machine.equals("cvg")) {
-            // TODO implement
             pathToObject = "C:\\Users\\u108\\Desktop\\EXHIBITION\\files\\unity_objects\\";
             pathToFile = "C:\\Users\\u108\\Desktop\\EXHIBITION\\files\\unity_files\\";
             pathToImage = "C:\\Users\\u108\\Desktop\\EXHIBITION\\files\\unity_images\\";
