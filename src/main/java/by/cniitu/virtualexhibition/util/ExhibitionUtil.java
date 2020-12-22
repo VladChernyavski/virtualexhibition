@@ -3,6 +3,7 @@ package by.cniitu.virtualexhibition.util;
 import by.cniitu.virtualexhibition.entity.exhibition.ExhibitionObject;
 import by.cniitu.virtualexhibition.entity.exhibition.Stand;
 import by.cniitu.virtualexhibition.entity.exhibition.StandObject;
+import by.cniitu.virtualexhibition.entity.file.File;
 import by.cniitu.virtualexhibition.to.ExhibitionObjectTo;
 import by.cniitu.virtualexhibition.to.StandObjectTo;
 import by.cniitu.virtualexhibition.to.StandTo;
@@ -10,6 +11,7 @@ import by.cniitu.virtualexhibition.to.StandTo;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExhibitionUtil {
 
@@ -62,7 +64,15 @@ public class ExhibitionUtil {
                 standObjectTo.setTexture(standObject.getTexture().getPath());
                 standObjectTo.setImage(standObject.getImage());
                 standObjectTo.setVideo(standObject.getVideo().getPath());
-                standObjectTo.setHaveVideo(standObject.getHaveVideo());
+                standObjectTo.setHasVideo(standObject.getHasVideo());
+                standObjectTo.setHasFiles(standObject.getHasFiles());
+                //если объект может иметь файлы, то добавляем id файлов в json поле fileIds
+                //если объект не может иметь файлов, возвращаем [] (или null)
+                if(standObject.getHasFiles()){
+                    standObjectTo.setFileIds(standObject.getFiles().stream().map(File::getId).collect(Collectors.toList()));
+                } else {
+                    standObjectTo.setFileIds(new ArrayList<>());
+                }
                 standObjectTos.add(standObjectTo);
             }
 
