@@ -2,7 +2,6 @@ package by.cniitu.virtualexhibition.entity.user;
 
 import by.cniitu.virtualexhibition.entity.exhibition.Stand;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -57,6 +56,9 @@ public class User implements UserDetails, Serializable {
 
     @OneToMany(mappedBy = "user")
     private List<Stand> stands;
+
+    @Column(name = "avatar_texture_id")
+    private Integer avatarId;
 
     @ManyToMany
     @JoinTable(name = "subscription_subscribers",
