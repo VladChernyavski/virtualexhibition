@@ -136,6 +136,14 @@ public class FileUtil {
         return new FileAndInputStreamResource(file, inputStreamResource);
     }
 
+    public static String getReadableFileSize(long bytes){
+        int unit = 1024;
+        if (bytes < unit) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = "kMGTPE".charAt(exp-1) + "";
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
+
     // gets file and retries if it's needed <retryCount> times
     private static File getFile(String fileName) {
         File file = null;
