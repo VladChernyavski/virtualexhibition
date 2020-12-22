@@ -5,6 +5,7 @@ import org.springframework.core.io.InputStreamResource;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -138,7 +139,8 @@ public class FileUtil {
 
     public static String getReadableFileSize(long bytes){
         int unit = 1024;
-        if (bytes < unit) return bytes + " B";
+        DecimalFormat decimalFormat = new DecimalFormat("#.#");
+        if (bytes < unit) return decimalFormat.format(bytes/1000d) + " kB";
         int exp = (int) (Math.log(bytes) / Math.log(unit));
         String pre = "kMGTPE".charAt(exp-1) + "";
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
