@@ -16,10 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @CrossOrigin("*")
@@ -99,7 +96,7 @@ public class UserController {
         if (Objects.isNull(user)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        String newPassword = RandomString.make();
+        String newPassword = RandomString.make() + new Random().nextInt(9);
         user.setPassword(newPassword);
         MailThreadExecutorUtil.execute(() -> userService.changeUserPassword(user, newPassword));
         return ResponseEntity.status(HttpStatus.OK).build();
