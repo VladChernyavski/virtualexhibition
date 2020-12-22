@@ -96,6 +96,31 @@ public class FileController {
                 .body(resource);
     }
 
+    @GetMapping("/download_id")
+    public ResponseEntity<Object> downloadById(@RequestParam int fileId){
+        by.cniitu.virtualexhibition.entity.file.File fileFromDB = fileService.getFile(fileId);
+
+        if (Objects.isNull(fileFromDB)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"No file with such id\"}");
+        }
+        String fileType = fileFromDB.getFileType().getName();
+        FileAndInputStreamResource fileAndInputStreamResource
+                = FileUtil.getFileAndInputStreamResource(fileFromDB.getPath(),
+                fileType.equals("image") ? "image" : fileType.equals("video") ? "video" : "file");
+
+        if (fileAndInputStreamResource == null)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"File not found\"}");
+
+        File file = fileAndInputStreamResource.getFile();
+        InputStreamResource resource = fileAndInputStreamResource.getInputStreamResource();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentLength(file.length()) //
+                .body(resource);
+    }
+
     static private Map<String, String> runtimePlatformMap = new HashMap<>();
 
     static {
