@@ -15,6 +15,7 @@ public class UserTo {
     private String nickName;
     private String email;
     private String role;
+    private Integer avatarId;
 
 
 }

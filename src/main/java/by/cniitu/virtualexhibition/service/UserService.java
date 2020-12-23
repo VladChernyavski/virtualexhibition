@@ -62,7 +62,7 @@ public class UserService implements UserDetailsService {
             return null;
         }
         UserTo userTo = new UserTo(user.getId(), user.getFirstName(), user.getLastName(),
-                user.getNickName(), user.getEmail(), user.getRole().getName());
+                user.getNickName(), user.getEmail(), user.getRole().getName(), user.getAvatarId());
         return userTo;
     }
 
