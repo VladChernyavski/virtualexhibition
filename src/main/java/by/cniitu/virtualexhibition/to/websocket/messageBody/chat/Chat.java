@@ -10,7 +10,7 @@ public class Chat {
     public static final Set<Chat> chats = new HashSet<>();
 
     private String id;
-    private Set<WebSocket> webSockets;
+    private Set<Integer> userIds;
 
     public Chat(){
 
@@ -20,16 +20,16 @@ public class Chat {
         return id;
     }
 
-    public Set<WebSocket> getWebSockets() {
-        return webSockets;
+    public Set<Integer> getUserIds() {
+        return userIds;
     }
 
     public void setId(String id) {
         this.id = id;
     }
 
-    public void setWebSockets(Set<WebSocket> webSockets) {
-        this.webSockets = webSockets;
+    public void setUserIds(Set<Integer> userIds) {
+        this.userIds = userIds;
     }
 
 }

@@ -1,7 +1,5 @@
 package by.cniitu.virtualexhibition.web.controller.stand;
 
-import by.cniitu.virtualexhibition.entity.exhibition.Stand;
-import by.cniitu.virtualexhibition.repository.stand.JpaStandRepository;
 import by.cniitu.virtualexhibition.repository.stand.StandIdNameAndExhibitName;
 import by.cniitu.virtualexhibition.service.StandService;
 import by.cniitu.virtualexhibition.to.StandAndUserTo;
@@ -40,6 +38,17 @@ public class StandController {
     public ResponseEntity<Object> getStandsByName(@RequestParam String name){
         List<StandAndUserTo> standsByName = standService.getStandsByName(name);
         return ResponseEntity.ok(standsByName);
+    }
+
+    @GetMapping("/stands/{standId}/description")
+    public ResponseEntity<Object> getDescription(@PathVariable int standId){
+        return ResponseEntity.ok(standService.getDescription(standId));
+    }
+
+    @PostMapping("stands/updatedesc")
+    public ResponseEntity<Object> updateDescription(@RequestBody UpdateDescriptionRequest request){
+        standService.updateDescription(request.getDescription(), request.getStandId());
+        return ResponseEntity.ok("{\"message\": \"Description is updated\"}");
     }
 
 }

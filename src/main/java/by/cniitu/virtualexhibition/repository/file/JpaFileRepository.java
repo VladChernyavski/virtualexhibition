@@ -65,9 +65,11 @@ public interface JpaFileRepository extends JpaRepository<File, Integer> {
             "EXISTS(SELECT 1 FROM file_exhibition_object WHERE file_exhibition_object.file_id = ?1))", nativeQuery = true)
     Boolean isLinkToFile(int fileId);
 
+    //TODO test. change return value. (Transactional, Modifying)
     @Query(value = "DELETE FROM file WHERE id = ?1", nativeQuery = true)
     Boolean deleteFileById(int fileId);
 
+    //TODO test. change return value. (Transactional, Modifying)
     @Query(value = "DELETE FROM bundle WHERE id = ?1", nativeQuery = true)
     Boolean deleteBundleById(int bundleId);
 }

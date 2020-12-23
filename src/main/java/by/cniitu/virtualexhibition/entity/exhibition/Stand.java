@@ -49,6 +49,15 @@ public class Stand {
     @Column(name = "scale_z")
     private Double scale_z;
 
+    @Column(name = "isspeaking_room")
+    private Boolean isSpeakingRoom;
+
+    @Column(name = "description")
+    private String description;
+
+    @Column(name = "chat_id")
+    private String chatId;
+
     @ManyToOne
     @JoinColumn(name = "model_id")
     private StandModel standModel;
