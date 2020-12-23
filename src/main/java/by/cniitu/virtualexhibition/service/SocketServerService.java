@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.net.InetSocketAddress;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class SocketServerService extends WebSocketServer {
@@ -54,24 +53,24 @@ public class SocketServerService extends WebSocketServer {
     public void onClose(WebSocket webSocket, int code, String reason, boolean remote) {
         System.out.println("Socket onClose " + webSocket);
 
-        // cancel user from the exhibition
-        for (Map.Entry<Integer, Map<WebSocket, CoordinatesToClient>> mapEntry : UserUtil.exhibitionWithWebsocketAndUser.entrySet()) {
-            mapEntry.getValue().keySet().remove(webSocket);
-        }
-
-        // cancel connection between webSocket and userId
         Map.Entry<Integer, WebSocket> integerWebSocketEntry = UserUtil.userIdWithWebsocket.entrySet().stream()
                 .filter(ws -> ws.getValue().equals(webSocket))
                 .findFirst()
                 .orElse(null);
-        if (!Objects.isNull(integerWebSocketEntry)) {
-            Integer userId = integerWebSocketEntry.getKey();
-            UserUtil.userIdWithWebsocket.remove(userId);
-            try {
-                broadcast(JsonUtil.getJsonString(new SocketTo(new UserWentOutToClient(userId))));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if (integerWebSocketEntry == null) {
+            return;
+        }
+        Integer userId = integerWebSocketEntry.getKey();
+        // cancel user from the exhibition
+        for (Map.Entry<Integer, Map<Integer, CoordinatesToClient>> mapEntry : UserUtil.exhibitionWithUsers.entrySet()) {
+            mapEntry.getValue().keySet().remove(userId);
+        }
+
+        UserUtil.userIdWithWebsocket.remove(userId);
+        try {
+            broadcast(JsonUtil.getJsonString(new SocketTo(new UserWentOutToClient(userId))));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -85,7 +84,7 @@ public class SocketServerService extends WebSocketServer {
 
         System.out.println("socketTo = " + JsonUtil.getJsonString(socketTo));
 
-        if(socketTo == null){
+        if (socketTo == null) {
             // TODO is the message have an error disconnect the person forever
             webSocket.send("{\"message\": \"error\"}");
 
@@ -94,28 +93,22 @@ public class SocketServerService extends WebSocketServer {
 
         MessageBody messageBody = socketTo.getMessageBody();
 
-        if (socketTo.getMessageType() == 0){ // user motion
+        if (socketTo.getMessageType() == 0) { // user motion
             sendMove(webSocket, messageBody);
-        }
-        else if (socketTo.getMessageType() == 1){ // new message in a chat
+        } else if (socketTo.getMessageType() == 1) { // new message in a chat
             sendMessage(webSocket, messageBody);
-        }
-        else if (socketTo.getMessageType() == 2){ // new chat
+        } else if (socketTo.getMessageType() == 2) { // new chat
             initChat(messageBody);
-        }
-        else if (socketTo.getMessageType() == 3){ // chat destroyed
+        } else if (socketTo.getMessageType() == 3) { // chat destroyed
             destroyChat(messageBody);
-        }
-        else if (socketTo.getMessageType() == 4){ // user went out or new user (chat)
+        } else if (socketTo.getMessageType() == 4) { // user went out or new user (chat)
             String messageDesc = messageBody.getMessageDesc();
-            if(messageDesc.equals("user went out")){
+            if (messageDesc.equals("user went out")) {
                 exitFromChat(messageBody);
-            }
-            else if(messageDesc.equals("new user")){
+            } else if (messageDesc.equals("new user")) {
                 addToChat(messageBody);
             }
-        }
-        else {
+        } else {
             try {
                 Ping ping = (Ping) messageBody;
                 // System.out.println("ping.getCount() = " + ping.getCount());
@@ -133,15 +126,20 @@ public class SocketServerService extends WebSocketServer {
 
     // if some user moves we tall it to all other users
     private void sendMove(WebSocket webSocket, MessageBody messageBody) {
-        CoordinatesToServer coordinatesToServer = (CoordinatesToServer)messageBody;
+        CoordinatesToServer coordinatesToServer = (CoordinatesToServer) messageBody;
         int exhibitionId = coordinatesToServer.getExhibitId();
+
         CoordinatesToClient coordinatesToClient = new CoordinatesToClient(coordinatesToServer);
-        Map<WebSocket, CoordinatesToClient> exhibitionMap = UserUtil.exhibitionWithWebsocketAndUser.get(exhibitionId);
-        if(exhibitionMap == null){
+        Map<Integer, CoordinatesToClient> exhibitionMap = UserUtil.exhibitionWithUsers.get(exhibitionId);
+        if (exhibitionMap == null) {
             exhibitionMap = new HashMap<>();
         }
-        exhibitionMap.put(webSocket, coordinatesToClient);
         Integer userId = coordinatesToServer.getUserId();
+        if (!exhibitionMap.containsKey(userId)) {
+            exhibitionMap.put(userId, coordinatesToClient);
+            UserUtil.exhibitionWithUsers.put(exhibitionId, exhibitionMap);
+        }
+
         if (!UserUtil.userIdWithWebsocket.containsKey(userId)) { // if user first time invoke move
             UserUtil.userIdWithWebsocket.put(userId, webSocket);
             for (CoordinatesToClient u : exhibitionMap.values()) {
@@ -152,9 +150,15 @@ public class SocketServerService extends WebSocketServer {
                 }
             }
         }
+
+        Set<WebSocket> webSockets = new HashSet<>();
+        for (Integer id : exhibitionMap.keySet()) {
+            webSockets.add(UserUtil.userIdWithWebsocket.get(id));
+        }
+
         try {
-            broadcast(JsonUtil.getJsonString(new SocketTo(coordinatesToClient)), exhibitionMap.keySet());
-        } catch (Exception ex){
+            broadcast(JsonUtil.getJsonString(new SocketTo(coordinatesToClient)), webSockets);
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
