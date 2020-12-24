@@ -33,4 +33,20 @@ public class StandService {
         standRepository.updateDescription(description, id);
     }
 
+    public void updateIsSpeakingRoom(boolean flag, int standId){
+        standRepository.updateIsSpeakingRoom(flag, standId);
+    }
+
+    public void resetChatId(int standId){
+        standRepository.resetChatId(standId);
+    }
+
+    public void insertChatId(String chatId, int standId){
+        standRepository.insertChatId(chatId, standId);
+    }
+
+    public Stand getStand(int id){
+        return standRepository.findById(id).orElse(null);
+    }
+
 }

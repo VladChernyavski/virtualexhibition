@@ -1,10 +1,11 @@
 package by.cniitu.virtualexhibition.to.websocket.messageBody.chat;
 
-import org.java_websocket.WebSocket;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@ToString
 public class Chat {
 
     public static final Set<Chat> chats = new HashSet<>();

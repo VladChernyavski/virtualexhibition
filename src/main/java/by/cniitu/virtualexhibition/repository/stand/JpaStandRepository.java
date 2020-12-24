@@ -30,4 +30,18 @@ public interface JpaStandRepository extends JpaRepository<Stand, Integer> {
     @Modifying
     void updateDescription(String description, int standId);
 
+    @Query(value = "UPDATE stand SET isspeaking_room = ?1 WHERE id = ?2", nativeQuery = true)
+    @Transactional
+    @Modifying
+    void updateIsSpeakingRoom(boolean flag, int standId);
+
+    @Query(value = "UPDATE stand SET chat_id = '' WHERE id = ?1", nativeQuery = true)
+    @Transactional
+    @Modifying
+    void resetChatId(int standId);
+
+    @Query(value = "UPDATE stand SET chat_id = ?1 WHERE id = ?2", nativeQuery = true)
+    @Transactional
+    @Modifying
+    void insertChatId(String chatId, int standId);
 }

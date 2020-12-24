@@ -271,7 +271,7 @@ public class SocketServerService extends WebSocketServer {
             e.printStackTrace();
         }
 
-        webSockets.remove(UserUtil.userIdWithWebsocket.get(userWentOutFromChatOrNewTo.getUserId()));
+        chat.getUserIds().remove(userWentOutFromChatOrNewTo.getUserId());
 
     }
 
@@ -292,6 +292,7 @@ public class SocketServerService extends WebSocketServer {
             webSockets.add(UserUtil.userIdWithWebsocket.get(id));
         }
 
+        chat.getUserIds().add(userWentOutFromChatOrNewTo.getUserId());
         webSockets.add(UserUtil.userIdWithWebsocket.get(userWentOutFromChatOrNewTo.getUserId()));
 
         try {
