@@ -24,11 +24,11 @@ public class App {
 
     }
 
-    public static String getString(String string){
+    public static String getString(String string) {
         String[] strings = string.split(" ");
         StringBuilder stringBuilder = new StringBuilder();
 
-        for(int i = 0; i < strings.length; i++){
+        for (int i = 0; i < strings.length; i++) {
             stringBuilder.append("0x").append(strings[i]).append(", ");
         }
 
@@ -36,7 +36,7 @@ public class App {
         return result.substring(0, result.length() - 2);
     }
 
-    public static void isEmailValid(){
+    public static void isEmailValid() {
         System.out.println(ValidationUtil.isEmailValid("abc123@gmail.com"));
         System.out.println(ValidationUtil.isEmailValid("vl.chert@.com"));
         System.out.println(ValidationUtil.isEmailValid("vladislav.chernavskyi@cniitu-it.by"));
@@ -48,7 +48,7 @@ public class App {
         System.out.println(ValidationUtil.isEmailValid("no-replym.mail.coursera.org"));
     }
 
-    public static void isPasswordValid(){
+    public static void isPasswordValid() {
         System.out.println(ValidationUtil.isPasswordValid("qwertyuiop")); //false
         System.out.println(ValidationUtil.isPasswordValid("qwertyu")); //false
         System.out.println(ValidationUtil.isPasswordValid("ryjurj145533")); //true
@@ -60,14 +60,14 @@ public class App {
         System.out.println(ValidationUtil.isPasswordValid("_123AE#Dfgh")); //false
     }
 
-    public static void isFirstNameValid(){
+    public static void isFirstNameValid() {
         System.out.println(ValidationUtil.isFirstNameValid("Vlad"));
         System.out.println(ValidationUtil.isFirstNameValid("Vlad 3"));
         System.out.println(ValidationUtil.isFirstNameValid("Great Vlad"));
         System.out.println(ValidationUtil.isFirstNameValid("Vlad-Gen"));
     }
 
-    public static void isLastNameValid(){
+    public static void isLastNameValid() {
         System.out.println(ValidationUtil.isLastNameValid("Chernyavski")); //true
         System.out.println(ValidationUtil.isLastNameValid("eyrereygreg")); //true
         System.out.println(ValidationUtil.isLastNameValid("Chernyavski-CHer")); //true
@@ -78,7 +78,7 @@ public class App {
         System.out.println(ValidationUtil.isLastNameValid("Chern^fafa")); //false
     }
 
-    public static void isNickNameValid(){
+    public static void isNickNameValid() {
         System.out.println(ValidationUtil.isNickNameValid("Vlad1321")); //true
         System.out.println(ValidationUtil.isNickNameValid("Vladqwert")); //true
         System.out.println(ValidationUtil.isNickNameValid("G")); //false
@@ -86,6 +86,9 @@ public class App {
         System.out.println(ValidationUtil.isNickNameValid("123154")); //true
         System.out.println(ValidationUtil.isNickNameValid("123%154")); //false
         System.out.println(ValidationUtil.isNickNameValid("bom&3")); //false
+        System.out.println(ValidationUtil.isNickNameValid("Влад_3")); //true
+        System.out.println(ValidationUtil.isNickNameValid("bom3_")); //true
+        System.out.println(ValidationUtil.isNickNameValid("Кирилл")); //true
     }
 
 }

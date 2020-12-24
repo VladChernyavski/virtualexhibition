@@ -9,7 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.StringUtils;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,13 +25,15 @@ public class UserUtil {
     }
 
     /**
-     * @param code - encoded user
+     * @param token - encoded user
      * @return decoded user or null in case of the error
      */
-    public static User getUserByParseCode(String code) {
-        byte[] decoded = Base64.getDecoder().decode(code);
-        String decodedString = new String(decoded);
-        String[] data = decodedString.split("~");
+    public static User getUserByParseCode(String token) {
+        String dataFromToken = JwtsUtil.getUserData(token);
+        if(dataFromToken == null){
+            return null;
+        }
+        String[] data = dataFromToken.split("~");
         // [UMKA] 23.11.2020 if the code is wrong and it is not a user
         if(data.length < 2){
             return null;

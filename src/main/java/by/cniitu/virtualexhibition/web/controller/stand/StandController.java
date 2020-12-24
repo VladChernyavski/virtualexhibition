@@ -55,15 +55,15 @@ public class StandController {
     }
 
     @PostMapping("/stands/{standId}")
-    public ResponseEntity<Object> updateIsSpeakingRoom(@RequestParam Boolean flag, @PathVariable int standId) {
+    public ResponseEntity<Object> updateIsSpeakingRoom(@RequestParam Boolean isSpeakingRoom, @PathVariable int standId) {
         Stand stand = standService.getStand(standId);
 
         if (stand == null) {
             return ResponseEntity.badRequest().body("{\"message\": \"No such stand\"}");
         }
-        standService.updateIsSpeakingRoom(flag, standId);
+        standService.updateIsSpeakingRoom(isSpeakingRoom, standId);
 
-        if (!flag) {
+        if (!isSpeakingRoom) {
             if (Chat.chats.stream().anyMatch(c -> c.getId().equals(stand.getChatId()))) {
                 standService.resetChatId(standId);
                 Chat.chats.removeIf(c -> c.getId().equals(stand.getChatId()));
@@ -71,7 +71,7 @@ public class StandController {
                 System.out.println("SET Chats -> " + Chat.chats);
             }
         }
-        if (flag) {
+        if (isSpeakingRoom) {
             if (Chat.chats.stream().noneMatch(c -> c.getId().equals(stand.getChatId()))) {
                 Chat chat = new Chat();
                 String chatId = "stand_chat_" + stand.getId();

@@ -57,9 +57,9 @@ public class UserActionController {
     /**
      * @param type - can be only "pdf", "excel"
      */
-    @GetMapping("/statistics/{id}")
-    public ResponseEntity<Object> getStatistics(@PathVariable int id, @RequestParam String type) {
-        User user = userService.get(id);
+    @GetMapping("/statistics/{userId}")
+    public ResponseEntity<Object> getStatistics(@PathVariable int userId, @RequestParam String type) {
+        User user = userService.get(userId);
         if (user == null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"No such user\"}");
         }

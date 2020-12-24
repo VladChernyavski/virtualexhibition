@@ -57,12 +57,12 @@ public class UserController {
         return ResponseEntity.ok("{\"message\": \"Ok. Check your email please\"}");
     }
 
-    @GetMapping("/activate/{code}")
-    public ResponseEntity<String> activate(@PathVariable String code) {
+    @GetMapping("/activate/{token}")
+    public ResponseEntity<String> activate(@PathVariable String token) {
         // TODO cancel it
-        if (code.equals("1111"))
+        if (token.equals("1111"))
             return ResponseEntity.ok("{\"message\": \"Your email is confirmed\"}");
-        User newUser = UserUtil.getUserByParseCode(code);
+        User newUser = UserUtil.getUserByParseCode(token);
         if (newUser == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Your link is invalid\"}");
         try {

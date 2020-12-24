@@ -5,6 +5,7 @@ import by.cniitu.virtualexhibition.entity.user.UserRole;
 import by.cniitu.virtualexhibition.repository.user.JpaRoleRepository;
 import by.cniitu.virtualexhibition.repository.user.JpaUserRepository;
 import by.cniitu.virtualexhibition.to.UserTo;
+import by.cniitu.virtualexhibition.util.JwtsUtil;
 import by.cniitu.virtualexhibition.util.UserUtil;
 import by.cniitu.virtualexhibition.web.controller.file.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,13 +87,13 @@ public class UserService implements UserDetailsService {
                 + user.getNickName() + "~"
                 + email + "~"
                 + user.getPassword();
-        String encode = Base64.getEncoder().encodeToString(data.getBytes());
+        String dataToken = JwtsUtil.generateTokenForUser(data);
 
         // TODO use port number 80 at the end
         // here we use the port of site user interface
         String message = String.format("Hello, %s! \n" +
                         "Welcome to Virtual Exhibition. Please, visit next link: http://" +
-                        FileUtil.getExternalIp() + ":3000/activate/%s", email, encode);
+                        FileUtil.getExternalIp() + ":3000/activate/%s", email, dataToken);
 
         try {
             mailService.send(email, "Activation code", message);
