@@ -2,6 +2,7 @@ package by.cniitu.virtualexhibition.repository.stand;
 
 import by.cniitu.virtualexhibition.entity.exhibition.Stand;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,4 +22,26 @@ public interface JpaStandRepository extends JpaRepository<Stand, Integer> {
     @Query(value = "SELECT new Stand(s.name, s.user) FROM Stand s WHERE LOWER(s.name) LIKE LOWER(CONCAT('%', ?1, '%'))")
     List<Stand> getStandsByName(String name);
 
+    @Query(value = "SELECT s.description FROM stand s WHERE s.id = ?1", nativeQuery = true)
+    String getDescription(int standId);
+
+    @Query(value = "UPDATE stand SET description = ?1 WHERE id = ?2", nativeQuery = true)
+    @Transactional
+    @Modifying
+    void updateDescription(String description, int standId);
+
+    @Query(value = "UPDATE stand SET isspeaking_room = ?1 WHERE id = ?2", nativeQuery = true)
+    @Transactional
+    @Modifying
+    void updateIsSpeakingRoom(boolean flag, int standId);
+
+    @Query(value = "UPDATE stand SET chat_id = '' WHERE id = ?1", nativeQuery = true)
+    @Transactional
+    @Modifying
+    void resetChatId(int standId);
+
+    @Query(value = "UPDATE stand SET chat_id = ?1 WHERE id = ?2", nativeQuery = true)
+    @Transactional
+    @Modifying
+    void insertChatId(String chatId, int standId);
 }

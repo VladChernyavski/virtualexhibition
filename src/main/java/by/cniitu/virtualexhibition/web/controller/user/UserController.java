@@ -1,12 +1,18 @@
 package by.cniitu.virtualexhibition.web.controller.user;
 
 import by.cniitu.virtualexhibition.config.jwt.JwtProvider;
+import by.cniitu.virtualexhibition.entity.file.FileType;
 import by.cniitu.virtualexhibition.entity.user.User;
+import by.cniitu.virtualexhibition.repository.file.JpaFileTypeRepository;
+import by.cniitu.virtualexhibition.service.FileService;
 import by.cniitu.virtualexhibition.service.UserService;
+import by.cniitu.virtualexhibition.to.UserTo;
 import by.cniitu.virtualexhibition.util.JwtsUtil;
 import by.cniitu.virtualexhibition.util.MailThreadExecutorUtil;
 import by.cniitu.virtualexhibition.util.UserUtil;
 import by.cniitu.virtualexhibition.util.ValidationUtil;
+import by.cniitu.virtualexhibition.web.controller.file.FileNameAndType;
+import by.cniitu.virtualexhibition.web.controller.file.FileUtil;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -15,11 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 @CrossOrigin("*")
@@ -27,6 +32,10 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private FileService fileService;
+    @Autowired
+    private JpaFileTypeRepository fileTypeRepository;
     @Autowired
     private JwtProvider jwtProvider;
 
@@ -97,16 +106,16 @@ public class UserController {
     public ResponseEntity<Object> changePassword(@RequestBody AuthRequest request) {
         User user = getUserByClaims(request.getToken(), "changepassword");
         if (Objects.isNull(user)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"error\"}");
         }
-        String newPassword = RandomString.make();
+        String newPassword = RandomString.make() + new Random().nextInt(9);
         user.setPassword(newPassword);
         MailThreadExecutorUtil.execute(() -> userService.changeUserPassword(user, newPassword));
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"OK\"}");
     }
 
     /**
-     * @param type - can be only "name", "surname", "email", "nick"
+     * @param type  - can be only "name", "surname", "email", "nick"
      * @param query - search query
      */
     @CrossOrigin("*")
@@ -117,6 +126,26 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Wrong type\"}");
         }
         return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/changeavatar")
+    public ResponseEntity<Object> changeAvatar(@RequestParam Integer userId, @RequestParam Integer avatarId) {
+        User user = userService.get(userId);
+        if (Objects.isNull(user)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"No such user\"}");
+        }
+        user.setAvatarId(avatarId);
+        userService.update(user);
+        return ResponseEntity.status(HttpStatus.OK).body("{\"message\": \"OK\"}");
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<Object> getUser(@PathVariable int id){
+        UserTo userTo = userService.getUserTo(id);
+        if (Objects.isNull(userTo)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"No such user\"}");
+        }
+        return ResponseEntity.ok(userTo);
     }
 
     private User getUserByClaims(String token, String method) {

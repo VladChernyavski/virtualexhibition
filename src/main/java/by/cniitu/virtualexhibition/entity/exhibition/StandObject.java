@@ -72,6 +72,9 @@ public class StandObject {
     private File video;
 
     @Column(name = "video")
-    private Boolean haveVideo;
+    private Boolean hasVideo;
+
+    @Column(name = "has_files")
+    private Boolean hasFiles;
 
 }

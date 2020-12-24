@@ -4,6 +4,7 @@ import by.cniitu.virtualexhibition.entity.exhibition.ObjectModel;
 import lombok.Data;
 
 import java.util.LinkedList;
+import java.util.List;
 
 @Data
 public class StandObjectTo {
@@ -17,6 +18,8 @@ public class StandObjectTo {
     private String texture;
     private Boolean image;
     private String video;
-    private Boolean haveVideo;
+    private Boolean hasVideo;
+    private Boolean hasFiles;
+    private List<Integer> fileIds;
 
 }

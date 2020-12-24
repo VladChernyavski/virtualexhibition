@@ -5,6 +5,7 @@ import org.springframework.core.io.InputStreamResource;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -45,7 +46,6 @@ public class FileUtil {
             pathToVideo = "C:/Users/u108/Desktop/theExhibitions/files/unity_video/";
             externalIp = "192.168.0.64";
         } else if (machine.equals("cvg")) {
-            // TODO implement
             pathToObject = "C:\\Users\\u108\\Desktop\\EXHIBITION\\files\\unity_objects\\";
             pathToFile = "C:\\Users\\u108\\Desktop\\EXHIBITION\\files\\unity_files\\";
             pathToImage = "C:\\Users\\u108\\Desktop\\EXHIBITION\\files\\unity_images\\";
@@ -135,6 +135,15 @@ public class FileUtil {
             }
         }
         return new FileAndInputStreamResource(file, inputStreamResource);
+    }
+
+    public static String getReadableFileSize(long bytes){
+        int unit = 1024;
+        DecimalFormat decimalFormat = new DecimalFormat("#.#");
+        if (bytes < unit) return decimalFormat.format(bytes/1000d) + " kB";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = "kMGTPE".charAt(exp-1) + "";
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
 
     // gets file and retries if it's needed <retryCount> times

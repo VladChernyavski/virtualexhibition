@@ -4,6 +4,7 @@ import by.cniitu.virtualexhibition.entity.user.User;
 import by.cniitu.virtualexhibition.entity.user.UserRole;
 import by.cniitu.virtualexhibition.repository.user.JpaRoleRepository;
 import by.cniitu.virtualexhibition.repository.user.JpaUserRepository;
+import by.cniitu.virtualexhibition.to.UserTo;
 import by.cniitu.virtualexhibition.util.UserUtil;
 import by.cniitu.virtualexhibition.web.controller.file.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +54,16 @@ public class UserService implements UserDetailsService {
 
     public User get(int id) {
         return userRepository.findById(id).orElse(null);
+    }
+
+    public UserTo getUserTo(int id){
+        User user = get(id);
+        if(user == null){
+            return null;
+        }
+        UserTo userTo = new UserTo(user.getId(), user.getFirstName(), user.getLastName(),
+                user.getNickName(), user.getEmail(), user.getRole().getName(), user.getAvatarId());
+        return userTo;
     }
 
     public User getByEmail(String email) {

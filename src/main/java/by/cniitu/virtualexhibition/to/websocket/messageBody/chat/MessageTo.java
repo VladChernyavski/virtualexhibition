@@ -4,6 +4,7 @@ import by.cniitu.virtualexhibition.to.websocket.messageBody.MessageBody;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,18 +15,21 @@ public class MessageTo extends MessageBody {
     private Integer userId;
     private String chatId;
     private String text;
-    private List<Integer> fileIds;
+    private List<FileWithSizeTo> filesWithSize;
 
-    public MessageTo(Integer userId, String chatId, String text, List<Integer> fileIds){
+    public MessageTo(Integer userId, String chatId, String text, List<FileWithSizeTo> filesWithSize){
         super("new message");
         this.userId = userId;
         this.chatId = chatId;
         this.text = text;
-        this.fileIds = new LinkedList<>(fileIds);
+        if(filesWithSize== null) {
+            filesWithSize = new LinkedList<>();
+        }
+        this.filesWithSize = new LinkedList<>(filesWithSize);
     }
 
     public MessageTo(MessageTo messageTo){
-        this(messageTo.userId, messageTo.chatId, messageTo.text, messageTo.fileIds);
+        this(messageTo.userId, messageTo.chatId, messageTo.text, messageTo.filesWithSize);
     }
 
     @Override
@@ -35,7 +39,7 @@ public class MessageTo extends MessageBody {
                 ", \"userId\": " + userId +
                 ", \"chatId\": \"" + chatId + "\"" +
                 ", \"text\": \"" + text + "\"" +
-                ", \"fileIds\": " + fileIds +
+                ", \"fileIds\": " + filesWithSize +
                 '}';
     }
 

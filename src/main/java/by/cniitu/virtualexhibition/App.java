@@ -1,6 +1,7 @@
 package by.cniitu.virtualexhibition;
 
 import by.cniitu.virtualexhibition.util.ValidationUtil;
+import by.cniitu.virtualexhibition.web.controller.file.FileUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -12,6 +13,14 @@ public class App {
 //
 //        PasswordEncoder encoder = new BCryptPasswordEncoder();
 //        System.out.println(encoder.encode("testtest"));
+
+        System.out.println("Bytes: 133 -> " + FileUtil.getReadableFileSize(133));
+        System.out.println("Bytes: 897 -> " + FileUtil.getReadableFileSize(897));
+        System.out.println("Bytes: 67731872 -> " + FileUtil.getReadableFileSize(67731872));
+        System.out.println("Bytes: 9831872 -> " + FileUtil.getReadableFileSize(9831872));
+        System.out.println("Bytes: 31872 -> " + FileUtil.getReadableFileSize(31872));
+        System.out.println("Bytes: 1026518782 -> " + FileUtil.getReadableFileSize(1026518782));
+        System.out.println("Bytes: 2434423412344872 -> " + FileUtil.getReadableFileSize(2434134172L));
 
     }
 

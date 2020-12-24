@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class UserUtil {
 
-    public static final Map<Integer, Map<WebSocket, CoordinatesToClient>> exhibitionWithWebsocketAndUser = new ConcurrentHashMap<>();
+    public static final Map<Integer, Map<Integer, CoordinatesToClient>> exhibitionWithUsers = new ConcurrentHashMap<>();
     public static final Map<Integer, WebSocket> userIdWithWebsocket = new ConcurrentHashMap<>();
 
     public static User prepareToSave(User user, PasswordEncoder passwordEncoder) {
