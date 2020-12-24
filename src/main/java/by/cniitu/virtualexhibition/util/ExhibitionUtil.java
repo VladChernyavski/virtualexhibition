@@ -39,6 +39,9 @@ public class ExhibitionUtil {
             }});
             standTo.setStandModel(stand.getStandModel());
             standTo.setUser(stand.getUser());
+            standTo.setIsSpeakingRoom(stand.getIsSpeakingRoom());
+            standTo.setDescription(stand.getDescription());
+            standTo.setChatId(stand.getChatId());
 
             List<StandObjectTo> standObjectTos = new ArrayList<>();
             for (StandObject standObject : stand.getStandObjects()) {

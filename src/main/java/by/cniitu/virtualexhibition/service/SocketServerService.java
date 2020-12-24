@@ -166,18 +166,23 @@ public class SocketServerService extends WebSocketServer {
     private void initChat(MessageBody messageBody) {
         NewChatToServer newChatToServer = (NewChatToServer) messageBody;
         Chat chat = new Chat();
-        chat.setWebSockets(new HashSet<>());
+        chat.setUserIds(new HashSet<>());
         String chatId = UUID.randomUUID().toString();
         chat.setId(chatId);
         System.out.println("Chat ID: " + chatId);
         for (Integer id : newChatToServer.getUserIds()) {
-            chat.getWebSockets().add(UserUtil.userIdWithWebsocket.get(id));
+            chat.getUserIds().add(id);
         }
         Chat.chats.add(chat);
 
+        Set<WebSocket> webSockets = new HashSet<>();
+        for (Integer id : chat.getUserIds()) {
+            webSockets.add(UserUtil.userIdWithWebsocket.get(id));
+        }
+
         //send chat id to all users from chat
         try {
-            broadcast(JsonUtil.getJsonString(new SocketTo(new NewToClientOrDestroyedChatTo(chatId, ChatAction.Create))), chat.getWebSockets());
+            broadcast(JsonUtil.getJsonString(new SocketTo(new NewToClientOrDestroyedChatTo(chatId, ChatAction.Create))), webSockets);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -203,8 +208,13 @@ public class SocketServerService extends WebSocketServer {
             return;
         }
 
+        Set<WebSocket> webSockets = new HashSet<>();
+        for (Integer id : chat.getUserIds()) {
+            webSockets.add(UserUtil.userIdWithWebsocket.get(id));
+        }
+
         try {
-            broadcast(JsonUtil.getJsonString(new SocketTo(new MessageTo(messageTo))), chat.getWebSockets());
+            broadcast(JsonUtil.getJsonString(new SocketTo(new MessageTo(messageTo))), webSockets);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -222,9 +232,14 @@ public class SocketServerService extends WebSocketServer {
             return;
         }
 
+        Set<WebSocket> webSockets = new HashSet<>();
+        for (Integer id : chat.getUserIds()) {
+            webSockets.add(UserUtil.userIdWithWebsocket.get(id));
+        }
+
         try {
             broadcast(JsonUtil.getJsonString(new SocketTo(new NewToClientOrDestroyedChatTo(chatId, ChatAction.Destroy))),
-                    chat.getWebSockets());
+                    webSockets);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -254,14 +269,19 @@ public class SocketServerService extends WebSocketServer {
             userId = integerWebSocketEntry.getKey();
         }*/
 
+        Set<WebSocket> webSockets = new HashSet<>();
+        for (Integer id : chat.getUserIds()) {
+            webSockets.add(UserUtil.userIdWithWebsocket.get(id));
+        }
+
         try {
             broadcast(JsonUtil.getJsonString(new SocketTo(new UserWentOutFromChatOrNewTo(userWentOutFromChatOrNewTo,
-                    UserAction.Exit))), chat.getWebSockets());
+                    UserAction.Exit))), webSockets);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        chat.getWebSockets().remove(UserUtil.userIdWithWebsocket.get(userWentOutFromChatOrNewTo.getUserId()));
+        chat.getUserIds().remove(userWentOutFromChatOrNewTo.getUserId());
 
     }
 
@@ -277,15 +297,20 @@ public class SocketServerService extends WebSocketServer {
             return;
         }
 
-        chat.getWebSockets().add(UserUtil.userIdWithWebsocket.get(userWentOutFromChatOrNewTo.getUserId()));
+        Set<WebSocket> webSockets = new HashSet<>();
+        for (Integer id : chat.getUserIds()) {
+            webSockets.add(UserUtil.userIdWithWebsocket.get(id));
+        }
+
+        chat.getUserIds().add(userWentOutFromChatOrNewTo.getUserId());
+        webSockets.add(UserUtil.userIdWithWebsocket.get(userWentOutFromChatOrNewTo.getUserId()));
 
         try {
             broadcast(JsonUtil.getJsonString(new SocketTo(new UserWentOutFromChatOrNewTo(userWentOutFromChatOrNewTo,
-                    UserAction.Enter))), chat.getWebSockets());
+                    UserAction.Enter))), webSockets);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
 
     }
 }

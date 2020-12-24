@@ -12,6 +12,9 @@ public class StandTo {
 
     private Integer id;
     private String name;
+    private Boolean isSpeakingRoom;
+    private String description;
+    private String chatId;
     private LinkedList<Double> coordinates;
     private LinkedList<Double> rotations;
     private LinkedList<Double> scale;
