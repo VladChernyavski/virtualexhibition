@@ -38,7 +38,7 @@ public class FileUtil {
             pathToFile = "/opt/unity_files/";
             pathToImage = "/opt/unity_images/";
             pathToVideo = "/opt/unity_video/";
-            externalIp = "10.65.65.20";
+            externalIp = "vremeni.net.by";
         } else if (machine.equals("bam")) {
             pathToObject = "C:/Users/u108/Desktop/theExhibitions/files/unity_objects/";
             pathToFile = "C:/Users/u108/Desktop/theExhibitions/files/unity_files/";

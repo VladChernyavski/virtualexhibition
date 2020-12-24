@@ -92,7 +92,7 @@ public class UserService implements UserDetailsService {
         // here we use the port of site user interface
         String message = String.format("Hello, %s! \n" +
                         "Welcome to Virtual Exhibition. Please, visit next link: http://" +
-                        FileUtil.getExternalIp() + ":3000/activate/%s", email, encode);
+                        FileUtil.getExternalIp() + ":3001/activate/%s", email, encode);
 
         try {
             mailService.send(email, "Activation code", message);
