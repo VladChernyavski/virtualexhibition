@@ -128,20 +128,28 @@ public class SocketServerService extends WebSocketServer {
     private void sendMove(WebSocket webSocket, MessageBody messageBody) {
         CoordinatesToServer coordinatesToServer = (CoordinatesToServer) messageBody;
         int exhibitionId = coordinatesToServer.getExhibitId();
-
         CoordinatesToClient coordinatesToClient = new CoordinatesToClient(coordinatesToServer);
-        Map<Integer, CoordinatesToClient> exhibitionMap = UserUtil.exhibitionWithUsers.get(exhibitionId);
-        if (exhibitionMap == null) {
-            exhibitionMap = new HashMap<>();
+
+        if(!UserUtil.exhibitionWithUsers.containsKey(exhibitionId)){
+            UserUtil.exhibitionWithUsers.put(exhibitionId, new HashMap<>());
         }
+        Map<Integer, CoordinatesToClient> exhibitionMap = UserUtil.exhibitionWithUsers.get(exhibitionId);
+
         Integer userId = coordinatesToServer.getUserId();
-        if (!exhibitionMap.containsKey(userId)) {
-            exhibitionMap.put(userId, coordinatesToClient);
-            UserUtil.exhibitionWithUsers.put(exhibitionId, exhibitionMap);
+
+        boolean newUser = false;
+
+        if(!exhibitionMap.containsKey(userId)){
+            newUser = true;
         }
 
-        if (!UserUtil.userIdWithWebsocket.containsKey(userId)) { // if user first time invoke move
+        exhibitionMap.put(userId, coordinatesToClient);
+
+        if (!UserUtil.userIdWithWebsocket.containsKey(userId)) {
             UserUtil.userIdWithWebsocket.put(userId, webSocket);
+        }
+
+        if(newUser){
             for (CoordinatesToClient u : exhibitionMap.values()) {
                 try {
                     webSocket.send(JsonUtil.getJsonString(new SocketTo(u)));

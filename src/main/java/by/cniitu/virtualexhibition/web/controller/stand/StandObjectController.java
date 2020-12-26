@@ -4,11 +4,9 @@ import by.cniitu.virtualexhibition.entity.exhibition.StandObject;
 import by.cniitu.virtualexhibition.entity.file.File;
 import by.cniitu.virtualexhibition.repository.file.JpaFileRepository;
 import by.cniitu.virtualexhibition.repository.stand.JpaStandObjectRepository;
-import by.cniitu.virtualexhibition.repository.stand.JpaStandRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 @CrossOrigin("*")
 @RestController
@@ -25,6 +23,7 @@ public class StandObjectController {
         StandObject standObject = jpaStandObjectRepository.getOne(standObjectId);
         standObject.setTexture(file);
         jpaStandObjectRepository.save(standObject);
+
         return ResponseEntity.ok("{\"message\": \"fine\"}");
     }
 
@@ -35,6 +34,8 @@ public class StandObjectController {
         standObject.setVideo(file);
         jpaStandObjectRepository.save(standObject);
         return ResponseEntity.ok("{\"message\": \"fine\"}");
+
+
     }
 
 }
