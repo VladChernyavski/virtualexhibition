@@ -47,6 +47,7 @@ public class UserUtil {
         user.setNickName(data[2]);
         user.setEmail(data[3]);
         user.setPassword(data[4]);
+        user.setAvatarId(0);
         return user;
     }
 

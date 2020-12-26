@@ -59,9 +59,6 @@ public class UserController {
 
     @GetMapping("/activate/{token}")
     public ResponseEntity<String> activate(@PathVariable String token) {
-        // TODO cancel it
-        if (token.equals("1111"))
-            return ResponseEntity.ok("{\"message\": \"Your email is confirmed\"}");
         User newUser = UserUtil.getUserByParseCode(token);
         if (newUser == null)
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("{\"message\": \"Your link is invalid\"}");
