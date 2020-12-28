@@ -33,13 +33,4 @@ public class JwtsUtil {
         return claims.getSubject();
     }
 
-    private static Claims getUserClaims(String token) {
-        Claims claims = null;
-        try {
-            claims = Jwts.parser().setSigningKey("secret".getBytes()).parseClaimsJws(token).getBody();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        return claims;
-    }
 }
