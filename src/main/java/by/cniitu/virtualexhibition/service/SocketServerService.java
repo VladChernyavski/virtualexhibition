@@ -36,9 +36,7 @@ public class SocketServerService extends WebSocketServer {
 
     public void onStart() {
         System.out.println("Socket onStart");
-//TODO remove bolvan
-//
-//        new SendCoordinate(this).start();
+        new SendCoordinate(this).start();
     }
 
     /**
